@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐后台管理系统 - 音乐管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            background: rgba(30, 41, 59, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-left: 3px solid #6366f1;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-bottom: 2px solid #6366f1;
+        }
+        
+        .upload-area {
+            border: 2px dashed #475569;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .modal {
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="flex">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-0 z-20">
+        <!-- Logo -->
+        <div class="p-6 border-b border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">音乐后台</h1>
+                    <p class="text-slate-400 text-xs">管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V6h-8z"/>
+                        </svg>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="music-management.html" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-lg text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                        <span>音乐管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01.99L12 13l-2.99-4.01A2.5 2.5 0 0 0 7 8H5.46c-.8 0-1.49.59-1.42 1.37L6.5 16H9v6h2v-6h2v6h2z"/>
+                        </svg>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="playlist-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                        </svg>
+                        <span>歌单管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="system-logs.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <span>系统日志</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-slate-900 bg-opacity-50 backdrop-filter backdrop-blur-lg border-b border-slate-700">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="md:hidden text-slate-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold text-white">音乐管理</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 搜索框 -->
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="搜索音乐、歌手、专辑..." 
+                               class="bg-slate-800 text-white px-4 py-2 pl-10 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500 w-64">
+                        <svg class="w-5 h-5 text-slate-400 absolute left-3 top-2.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- 用户头像 -->
+                    <div class="flex items-center space-x-3">
+                        <img id="userAvatar" src="resources/images/artist1.png" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span id="userName" class="text-sm text-white font-medium">admin</span>
+                        <button id="logoutBtn" class="text-slate-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="main-content p-6">
+            <!-- 标签页导航 -->
+            <div class="flex space-x-1 mb-6 bg-slate-800 bg-opacity-50 rounded-lg p-1">
+                <button id="artistsTab" class="tab-button active flex-1 px-4 py-2 rounded-md text-white font-medium">
+                    歌手管理
+                </button>
+                <button id="albumsTab" class="tab-button flex-1 px-4 py-2 rounded-md text-slate-300 hover:text-white">
+                    专辑管理
+                </button>
+                <button id="songsTab" class="tab-button flex-1 px-4 py-2 rounded-md text-slate-300 hover:text-white">
+                    歌曲管理
+                </button>
+            </div>
+
+            <!-- 歌手管理面板 -->
+            <div id="artistsPanel" class="tab-panel">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">歌手列表</h3>
+                    <button id="addArtistBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        添加歌手
+                    </button>
+                </div>
+
+                <div class="content-card rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-800 bg-opacity-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">歌手</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">专辑数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">歌曲数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">出道年份</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="artistsTableBody" class="bg-slate-900 bg-opacity-30">
+                                <!-- 动态生成的内容 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 专辑管理面板 -->
+            <div id="albumsPanel" class="tab-panel hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">专辑列表</h3>
+                    <button id="addAlbumBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        添加专辑
+                    </button>
+                </div>
+
+                <div class="content-card rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-800 bg-opacity-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">专辑</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">歌手</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">歌曲数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">发行日期</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">总时长</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="albumsTableBody" class="bg-slate-900 bg-opacity-30">
+                                <!-- 动态生成的内容 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 歌曲管理面板 -->
+            <div id="songsPanel" class="tab-panel hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">歌曲列表</h3>
+                    <div class="flex space-x-2">
+                        <button id="uploadSongBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                            </svg>
+                            上传歌曲
+                        </button>
+                        <button id="addSongBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                            添加歌曲
+                        </button>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-slate-800 bg-opacity-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">歌曲</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">专辑</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">时长</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">播放量</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">上传日期</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="songsTableBody" class="bg-slate-900 bg-opacity-30">
+                                <!-- 动态生成的内容 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加歌手模态框 -->
+    <div id="addArtistModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold text-white mb-4">添加歌手</h3>
+            <form id="addArtistForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">歌手名称</label>
+                    <input type="text" id="artistName" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">音乐类型</label>
+                    <select id="artistGenre" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                        <option value="Pop">流行</option>
+                        <option value="Rock">摇滚</option>
+                        <option value="Electronic">电子</option>
+                        <option value="Jazz">爵士</option>
+                        <option value="Folk">民谣</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">出道年份</label>
+                    <input type="number" id="artistDebutYear" min="1900" max="2024" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">描述</label>
+                    <textarea id="artistDescription" rows="3" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addArtistModal')" class="px-4 py-2 text-slate-300 hover:text-white transition-colors">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 文件上传模态框 -->
+    <div id="uploadModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-lg mx-4">
+            <h3 class="text-lg font-semibold text-white mb-4">上传音乐文件</h3>
+            <div id="uploadArea" class="upload-area rounded-lg p-8 text-center mb-4">
+                <svg class="w-12 h-12 text-slate-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                </svg>
+                <p class="text-slate-400 mb-2">拖拽文件到此处或点击上传</p>
+                <p class="text-slate-500 text-sm">支持 MP3, WAV, FLAC 格式，最大 50MB</p>
+                <input type="file" id="fileInput" accept=".mp3,.wav,.flac" multiple class="hidden">
+                <button onclick="document.getElementById('fileInput').click()" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">
+                    选择文件
+                </button>
+            </div>
+            <div id="uploadProgress" class="hidden">
+                <div class="flex justify-between text-sm text-slate-400 mb-2">
+                    <span>上传进度</span>
+                    <span id="uploadPercent">0%</span>
+                </div>
+                <div class="w-full bg-slate-700 rounded-full h-2">
+                    <div id="uploadBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 mt-4">
+                <button onclick="closeModal('uploadModal')" class="px-4 py-2 text-slate-300 hover:text-white transition-colors">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeMusicManagement();
+            setupTabSwitching();
+            setupFileUpload();
+        });
+
+        // 标签页切换
+        function setupTabSwitching() {
+            const tabs = ['artistsTab', 'albumsTab', 'songsTab'];
+            const panels = ['artistsPanel', 'albumsPanel', 'songsPanel'];
+
+            tabs.forEach((tabId, index) => {
+                document.getElementById(tabId).addEventListener('click', function() {
+                    // 移除所有活动状态
+                    tabs.forEach(t => document.getElementById(t).classList.remove('active'));
+                    panels.forEach(p => {
+                        const panel = document.getElementById(p);
+                        panel.classList.add('hidden');
+                    });
+
+                    // 添加活动状态
+                    this.classList.add('active');
+                    document.getElementById(panels[index]).classList.remove('hidden');
+                });
+            });
+        }
+
+        // 设置文件上传
+        function setupFileUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            // 拖拽上传
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleFileUpload(files);
+            });
+
+            // 文件选择
+            fileInput.addEventListener('change', function() {
+                handleFileUpload(this.files);
+            });
+        }
+
+        // 处理文件上传
+        function handleFileUpload(files) {
+            const progressContainer = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('uploadBar');
+            const progressText = document.getElementById('uploadPercent');
+            
+            progressContainer.classList.remove('hidden');
+
+            // 模拟上传进度
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 100) progress = 100;
+
+                progressBar.style.width = progress + '%';
+                progressText.textContent = Math.floor(progress) + '%';
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        showNotification('文件上传成功！', 'success');
+                        closeModal('uploadModal');
+                        progressContainer.classList.add('hidden');
+                    }, 500);
+                }
+            }, 200);
+        }
+
+        // 显示模态框
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            anime({
+                targets: modal,
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            
+            anime({
+                targets: modal,
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuart',
+                complete: function() {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        // 事件监听器
+        document.getElementById('addArtistBtn').addEventListener('click', function() {
+            showModal('addArtistModal');
+        });
+
+        document.getElementById('uploadSongBtn').addEventListener('click', function() {
+            showModal('uploadModal');
+        });
+
+        document.getElementById('addArtistForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const artistData = {
+                name: document.getElementById('artistName').value,
+                genre: document.getElementById('artistGenre').value,
+                debutYear: document.getElementById('artistDebutYear').value,
+                description: document.getElementById('artistDescription').value
+            };
+
+            // 这里可以添加实际的添加逻辑
+            console.log('添加歌手:', artistData);
+            showNotification('歌手添加成功！', 'success');
+            closeModal('addArtistModal');
+            
+            // 重置表单
+            this.reset();
+        });
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            // 这里可以添加搜索过滤逻辑
+            console.log('搜索:', searchTerm);
+        });
+    </script>
+</body>
+</html>

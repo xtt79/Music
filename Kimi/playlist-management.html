@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐后台管理系统 - 歌单管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            background: rgba(30, 41, 59, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-left: 3px solid #6366f1;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .playlist-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .playlist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal {
+            backdrop-filter: blur(10px);
+        }
+        
+        .song-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="flex">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-0 z-20">
+        <!-- Logo -->
+        <div class="p-6 border-b border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">音乐后台</h1>
+                    <p class="text-slate-400 text-xs">管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V6h-8z"/>
+                        </svg>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="music-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                        <span>音乐管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01.99L12 13l-2.99-4.01A2.5 2.5 0 0 0 7 8H5.46c-.8 0-1.49.59-1.42 1.37L6.5 16H9v6h2v-6h2v6h2z"/>
+                        </svg>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="playlist-management.html" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-lg text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                        </svg>
+                        <span>歌单管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="system-logs.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <span>系统日志</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-slate-900 bg-opacity-50 backdrop-filter backdrop-blur-lg border-b border-slate-700">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="md:hidden text-slate-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold text-white">歌单管理</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 搜索框 -->
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="搜索歌单..." 
+                               class="bg-slate-800 text-white px-4 py-2 pl-10 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500 w-64">
+                        <svg class="w-5 h-5 text-slate-400 absolute left-3 top-2.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- 添加歌单按钮 -->
+                    <button id="addPlaylistBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        添加歌单
+                    </button>
+                    
+                    <!-- 用户头像 -->
+                    <div class="flex items-center space-x-3">
+                        <img id="userAvatar" src="resources/images/artist1.png" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span id="userName" class="text-sm text-white font-medium">admin</span>
+                        <button id="logoutBtn" class="text-slate-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="main-content p-6">
+            <!-- 歌单统计 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">总歌单数</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="totalPlaylistsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">公开歌单</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="publicPlaylistsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">私有歌单</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="privatePlaylistsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">总播放量</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="totalPlaylistPlays">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 歌单列表 -->
+            <div class="content-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">歌单列表</h3>
+                    <div class="flex space-x-2">
+                        <select id="visibilityFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部可见性</option>
+                            <option value="public">公开</option>
+                            <option value="private">私有</option>
+                        </select>
+                        <select id="creatorFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部创建者</option>
+                            <option value="MusicAdmin">管理员</option>
+                            <option value="musiclover2024">musiclover2024</option>
+                            <option value="djmaster">djmaster</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="playlistsGrid">
+                    <!-- 动态生成的歌单卡片 -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加歌单模态框 -->
+    <div id="addPlaylistModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold text-white mb-4">创建新歌单</h3>
+            <form id="addPlaylistForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">歌单名称</label>
+                    <input type="text" id="playlistName" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">描述</label>
+                    <textarea id="playlistDescription" rows="3" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">可见性</label>
+                    <select id="playlistVisibility" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                        <option value="public">公开</option>
+                        <option value="private">私有</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addPlaylistModal')" class="px-4 py-2 text-slate-300 hover:text-white transition-colors">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 歌单详情模态框 -->
+    <div id="playlistDetailModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-white" id="playlistDetailTitle">歌单详情</h3>
+                <button onclick="closeModal('playlistDetailModal')" class="text-slate-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 歌单信息 -->
+                <div class="lg:col-span-1">
+                    <div class="content-card rounded-xl p-6">
+                        <img id="playlistDetailCover" src="" alt="歌单封面" class="w-full h-48 object-cover rounded-lg mb-4">
+                        <h4 class="text-lg font-semibold text-white mb-2" id="playlistDetailName"></h4>
+                        <p class="text-slate-400 text-sm mb-4" id="playlistDetailDescription"></p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">创建者:</span>
+                                <span class="text-slate-300" id="playlistDetailCreator"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">歌曲数:</span>
+                                <span class="text-slate-300" id="playlistDetailSongCount"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">播放量:</span>
+                                <span class="text-slate-300" id="playlistDetailPlays"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">创建时间:</span>
+                                <span class="text-slate-300" id="playlistDetailCreateDate"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">可见性:</span>
+                                <span class="text-slate-300" id="playlistDetailVisibility"></span>
+                            </div>
+                        </div>
+
+                        <div class="flex space-x-2 mt-4">
+                            <button onclick="editPlaylist()" class="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors">
+                                编辑歌单
+                            </button>
+                            <button onclick="deletePlaylist()" class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors">
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 歌曲列表 -->
+                <div class="lg:col-span-2">
+                    <div class="content-card rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-semibold text-white">歌曲列表</h4>
+                            <button onclick="showAddSongModal()" class="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors">
+                                添加歌曲
+                            </button>
+                        </div>
+
+                        <div class="space-y-2" id="playlistSongsList">
+                            <!-- 动态生成的歌曲列表 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加歌曲到歌单模态框 -->
+    <div id="addSongToPlaylistModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-lg mx-4">
+            <h3 class="text-lg font-semibold text-white mb-4">添加歌曲到歌单</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">选择歌曲</label>
+                    <select id="songSelect" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" multiple size="8">
+                        <option value="song001">Electric Heartbeat - Luna Star</option>
+                        <option value="song002">Neon Lights - Luna Star</option>
+                        <option value="song003">Thunder Strike - Thunder Rock</option>
+                        <option value="song004">Breaking Chains - Thunder Rock</option>
+                        <option value="song005">Digital Dreams - Neon Pulse</option>
+                        <option value="song006">Smooth Jazz Night - Jazz Harmony</option>
+                        <option value="song007">Acoustic Morning - Acoustic Dreams</option>
+                        <option value="song008">Crystal Sky - Luna Star</option>
+                        <option value="song009">Storm Rider - Thunder Rock</option>
+                        <option value="song010">Cyber Funk - Neon Pulse</option>
+                    </select>
+                    <p class="text-slate-400 text-xs mt-1">按住 Ctrl/Cmd 键可多选</p>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeModal('addSongToPlaylistModal')" class="px-4 py-2 text-slate-300 hover:text-white transition-colors">取消</button>
+                    <button onclick="addSongsToPlaylist()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePlaylistManagement();
+            setupEventListeners();
+        });
+
+        // 初始化歌单管理
+        function initializePlaylistManagement() {
+            loadPlaylistsData();
+            updatePlaylistStats();
+        }
+
+        // 加载歌单数据
+        function loadPlaylistsData() {
+            const playlistsGrid = document.getElementById('playlistsGrid');
+            playlistsGrid.innerHTML = '';
+
+            // 使用模拟数据
+            const playlists = [
+                {
+                    id: 'playlist001',
+                    name: 'Top Hits 2024',
+                    description: 'The hottest tracks of the year',
+                    creator: 'MusicAdmin',
+                    coverUrl: 'resources/images/album1.png',
+                    songCount: 4,
+                    isPublic: true,
+                    createDate: '2024-01-01',
+                    playCount: 25600,
+                    likes: 1200
+                },
+                {
+                    id: 'playlist002',
+                    name: 'Rock Anthems',
+                    description: 'Epic rock songs that define a generation',
+                    creator: 'RockFan88',
+                    coverUrl: 'resources/images/album2.png',
+                    songCount: 3,
+                    isPublic: true,
+                    createDate: '2024-01-15',
+                    playCount: 18900,
+                    likes: 890
+                },
+                {
+                    id: 'playlist003',
+                    name: 'Electronic Vibes',
+                    description: 'Electronic music for focus and energy',
+                    creator: 'djmaster',
+                    coverUrl: 'resources/images/album3.png',
+                    songCount: 2,
+                    isPublic: true,
+                    createDate: '2024-02-01',
+                    playCount: 12300,
+                    likes: 567
+                },
+                {
+                    id: 'playlist004',
+                    name: 'Jazz & Chill',
+                    description: 'Smooth jazz for relaxation',
+                    creator: 'jazzenthusiast',
+                    coverUrl: 'resources/images/album4.png',
+                    songCount: 1,
+                    isPublic: true,
+                    createDate: '2024-02-15',
+                    playCount: 8900,
+                    likes: 345
+                },
+                {
+                    id: 'playlist005',
+                    name: 'Acoustic Sessions',
+                    description: 'Intimate acoustic performances',
+                    creator: 'musiclover2024',
+                    coverUrl: 'resources/images/album5.png',
+                    songCount: 1,
+                    isPublic: true,
+                    createDate: '2024-03-01',
+                    playCount: 6700,
+                    likes: 234
+                },
+                {
+                    id: 'playlist006',
+                    name: 'My Favorites',
+                    description: 'Personal collection of favorite tracks',
+                    creator: 'musiclover2024',
+                    coverUrl: 'resources/images/album1.png',
+                    songCount: 5,
+                    isPublic: false,
+                    createDate: '2024-03-15',
+                    playCount: 3400,
+                    likes: 0
+                }
+            ];
+
+            playlists.forEach(playlist => {
+                const playlistCard = createPlaylistCard(playlist);
+                playlistsGrid.appendChild(playlistCard);
+            });
+        }
+
+        // 创建歌单卡片
+        function createPlaylistCard(playlist) {
+            const card = document.createElement('div');
+            card.className = 'playlist-card rounded-xl p-6 cursor-pointer';
+            card.onclick = () => showPlaylistDetail(playlist);
+            
+            card.innerHTML = `
+                <div class="relative mb-4">
+                    <img src="${playlist.coverUrl}" alt="${playlist.name}" class="w-full h-40 object-cover rounded-lg">
+                    <div class="absolute top-2 right-2">
+                        <span class="px-2 py-1 text-xs rounded-full ${playlist.isPublic ? 'bg-green-600 text-green-100' : 'bg-purple-600 text-purple-100'}">
+                            ${playlist.isPublic ? '公开' : '私有'}
+                        </span>
+                    </div>
+                    <div class="absolute bottom-2 left-2">
+                        <div class="bg-black bg-opacity-50 rounded-full p-2">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <h4 class="text-lg font-semibold text-white mb-2">${playlist.name}</h4>
+                <p class="text-slate-400 text-sm mb-4 line-clamp-2">${playlist.description}</p>
+                
+                <div class="flex items-center justify-between text-sm text-slate-400 mb-4">
+                    <span>${playlist.songCount} 首歌曲</span>
+                    <span>${playlist.playCount.toLocaleString()} 次播放</span>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                        <span class="text-slate-400">${playlist.likes}</span>
+                    </div>
+                    <span class="text-slate-400">by ${playlist.creator}</span>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 更新歌单统计
+        function updatePlaylistStats() {
+            const playlists = [
+                { isPublic: true },
+                { isPublic: true },
+                { isPublic: true },
+                { isPublic: true },
+                { isPublic: true },
+                { isPublic: false }
+            ];
+
+            const totalPlaylists = playlists.length;
+            const publicPlaylists = playlists.filter(p => p.isPublic).length;
+            const privatePlaylists = playlists.filter(p => !p.isPublic).length;
+            const totalPlays = 25600 + 18900 + 12300 + 8900 + 6700 + 3400;
+
+            // 动画更新数字
+            animateNumber('totalPlaylistsCount', totalPlaylists);
+            animateNumber('publicPlaylistsCount', publicPlaylists);
+            animateNumber('privatePlaylistsCount', privatePlaylists);
+            animateNumber('totalPlaylistPlays', totalPlays);
+        }
+
+        // 数字动画
+        function animateNumber(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const startValue = 0;
+            
+            anime({
+                targets: { value: startValue },
+                value: targetValue,
+                duration: 1500,
+                easing: 'easeOutQuart',
+                update: function(anim) {
+                    element.textContent = Math.floor(anim.animatables[0].target.value).toLocaleString();
+                }
+            });
+        }
+
+        // 显示歌单详情
+        function showPlaylistDetail(playlist) {
+            document.getElementById('playlistDetailTitle').textContent = playlist.name;
+            document.getElementById('playlistDetailCover').src = playlist.coverUrl;
+            document.getElementById('playlistDetailName').textContent = playlist.name;
+            document.getElementById('playlistDetailDescription').textContent = playlist.description;
+            document.getElementById('playlistDetailCreator').textContent = playlist.creator;
+            document.getElementById('playlistDetailSongCount').textContent = playlist.songCount + ' 首';
+            document.getElementById('playlistDetailPlays').textContent = playlist.playCount.toLocaleString() + ' 次';
+            document.getElementById('playlistDetailCreateDate').textContent = playlist.createDate;
+            document.getElementById('playlistDetailVisibility').textContent = playlist.isPublic ? '公开' : '私有';
+
+            // 生成歌曲列表
+            generatePlaylistSongs(playlist);
+
+            showModal('playlistDetailModal');
+        }
+
+        // 生成歌单歌曲列表
+        function generatePlaylistSongs(playlist) {
+            const songsList = document.getElementById('playlistSongsList');
+            songsList.innerHTML = '';
+
+            // 模拟歌曲数据
+            const songs = [
+                { id: 'song001', title: 'Electric Heartbeat', artist: 'Luna Star', duration: '3:45' },
+                { id: 'song002', title: 'Neon Lights', artist: 'Luna Star', duration: '4:12' },
+                { id: 'song003', title: 'Thunder Strike', artist: 'Thunder Rock', duration: '4:30' },
+                { id: 'song008', title: 'Crystal Sky', artist: 'Luna Star', duration: '3:22' }
+            ];
+
+            songs.forEach((song, index) => {
+                const songItem = document.createElement('div');
+                songItem.className = 'song-item rounded-lg p-3 flex items-center justify-between';
+                
+                songItem.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-slate-700 rounded flex items-center justify-center text-slate-400 text-sm font-medium">
+                            ${index + 1}
+                        </div>
+                        <div>
+                            <h5 class="text-white font-medium">${song.title}</h5>
+                            <p class="text-slate-400 text-sm">${song.artist}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-slate-400 text-sm">${song.duration}</span>
+                        <button onclick="removeSongFromPlaylist('${song.id}')" class="text-red-400 hover:text-red-300 transition-colors">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59z"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                
+                songsList.appendChild(songItem);
+            });
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 添加歌单按钮
+            document.getElementById('addPlaylistBtn').addEventListener('click', function() {
+                showModal('addPlaylistModal');
+            });
+
+            // 添加歌单表单
+            document.getElementById('addPlaylistForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const playlistData = {
+                    name: document.getElementById('playlistName').value,
+                    description: document.getElementById('playlistDescription').value,
+                    visibility: document.getElementById('playlistVisibility').value
+                };
+
+                console.log('创建歌单:', playlistData);
+                showNotification('歌单创建成功！', 'success');
+                closeModal('addPlaylistModal');
+                this.reset();
+            });
+
+            // 搜索功能
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterPlaylists(searchTerm);
+            });
+
+            // 筛选功能
+            document.getElementById('visibilityFilter').addEventListener('change', function() {
+                filterPlaylists();
+            });
+
+            document.getElementById('creatorFilter').addEventListener('change', function() {
+                filterPlaylists();
+            });
+        }
+
+        // 显示模态框
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            anime({
+                targets: modal,
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            
+            anime({
+                targets: modal,
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuart',
+                complete: function() {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        // 显示添加歌曲模态框
+        function showAddSongModal() {
+            showModal('addSongToPlaylistModal');
+        }
+
+        // 添加歌曲到歌单
+        function addSongsToPlaylist() {
+            const selectedSongs = Array.from(document.getElementById('songSelect').selectedOptions);
+            console.log('添加歌曲:', selectedSongs.map(option => option.value));
+            
+            showNotification('歌曲添加成功！', 'success');
+            closeModal('addSongToPlaylistModal');
+        }
+
+        // 从歌单移除歌曲
+        function removeSongFromPlaylist(songId) {
+            if (confirm('确定要从歌单中移除这首歌曲吗？')) {
+                showNotification('歌曲已移除！', 'success');
+            }
+        }
+
+        // 编辑歌单
+        function editPlaylist() {
+            showNotification('编辑功能开发中...', 'info');
+        }
+
+        // 删除歌单
+        function deletePlaylist() {
+            if (confirm('确定要删除这个歌单吗？')) {
+                showNotification('歌单已删除！', 'success');
+                closeModal('playlistDetailModal');
+            }
+        }
+
+        // 筛选歌单
+        function filterPlaylists(searchTerm = '') {
+            const visibilityFilter = document.getElementById('visibilityFilter').value;
+            const creatorFilter = document.getElementById('creatorFilter').value;
+
+            const playlistCards = document.querySelectorAll('.playlist-card');
+            
+            playlistCards.forEach(card => {
+                const name = card.querySelector('h4').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                const visibility = card.querySelector('.bg-green-600, .bg-purple-600').textContent.includes('公开') ? 'public' : 'private';
+                const creator = card.querySelector('.text-slate-400:last-child').textContent.replace('by ', '');
+
+                let showCard = true;
+
+                // 搜索过滤
+                if (searchTerm && !name.includes(searchTerm) && !description.includes(searchTerm)) {
+                    showCard = false;
+                }
+
+                // 可见性过滤
+                if (visibilityFilter && visibility !== visibilityFilter) {
+                    showCard = false;
+                }
+
+                // 创建者过滤
+                if (creatorFilter && creator !== creatorFilter) {
+                    showCard = false;
+                }
+
+                card.style.display = showCard ? 'block' : 'none';
+            });
+        }
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

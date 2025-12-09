@@ -21,6 +21,12 @@ export default defineConfig({
         cookiePathRewrite: {
           '/yolomusic_war': '/'
         }
+      },
+      // 让本地开发环境能访问后端生成的上传文件（封面、音乐等）
+      '/uploads': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/uploads/, '/yolomusic_war/uploads')
       }
     }
   },

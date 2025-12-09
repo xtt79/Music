@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐后台管理系统 - 系统日志</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            background: rgba(30, 41, 59, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-left: 3px solid #6366f1;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .log-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .log-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+        
+        .status-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .status-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="flex">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-0 z-20">
+        <!-- Logo -->
+        <div class="p-6 border-b border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">音乐后台</h1>
+                    <p class="text-slate-400 text-xs">管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V6h-8z"/>
+                        </svg>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="music-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                        <span>音乐管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01.99L12 13l-2.99-4.01A2.5 2.5 0 0 0 7 8H5.46c-.8 0-1.49.59-1.42 1.37L6.5 16H9v6h2v-6h2v6h2z"/>
+                        </svg>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="playlist-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                        </svg>
+                        <span>歌单管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="system-logs.html" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-lg text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <span>系统日志</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-slate-900 bg-opacity-50 backdrop-filter backdrop-blur-lg border-b border-slate-700">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="md:hidden text-slate-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold text-white">系统日志</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 导出按钮 -->
+                    <button id="exportLogsBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                        </svg>
+                        导出日志
+                    </button>
+                    
+                    <!-- 清空日志按钮 -->
+                    <button id="clearLogsBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                        清空日志
+                    </button>
+                    
+                    <!-- 用户头像 -->
+                    <div class="flex items-center space-x-3">
+                        <img id="userAvatar" src="resources/images/artist1.png" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span id="userName" class="text-sm text-white font-medium">admin</span>
+                        <button id="logoutBtn" class="text-slate-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="main-content p-6">
+            <!-- 日志统计 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">总日志数</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="totalLogsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">成功操作</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="successLogsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">警告日志</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="warningLogsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">错误日志</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="errorLogsCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-red-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 日志筛选 -->
+            <div class="content-card rounded-xl p-6 mb-6">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-slate-300 text-sm">操作类型:</label>
+                        <select id="actionFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部操作</option>
+                            <option value="LOGIN">登录</option>
+                            <option value="LOGOUT">退出</option>
+                            <option value="CREATE">创建</option>
+                            <option value="UPDATE">更新</option>
+                            <option value="DELETE">删除</option>
+                            <option value="UPLOAD">上传</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-slate-300 text-sm">状态:</label>
+                        <select id="statusFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部状态</option>
+                            <option value="SUCCESS">成功</option>
+                            <option value="ERROR">错误</option>
+                            <option value="WARNING">警告</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-slate-300 text-sm">用户:</label>
+                        <select id="userFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部用户</option>
+                            <option value="admin">admin</option>
+                            <option value="musiclover2024">musiclover2024</option>
+                            <option value="djmaster">djmaster</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-slate-300 text-sm">资源类型:</label>
+                        <select id="resourceFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部资源</option>
+                            <option value="System">系统</option>
+                            <option value="User">用户</option>
+                            <option value="Artist">歌手</option>
+                            <option value="Album">专辑</option>
+                            <option value="Song">歌曲</option>
+                            <option value="Playlist">歌单</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <label class="text-slate-300 text-sm">日期范围:</label>
+                        <input type="date" id="dateFrom" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                        <span class="text-slate-400">至</span>
+                        <input type="date" id="dateTo" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors">
+                        重置筛选
+                    </button>
+                </div>
+            </div>
+
+            <!-- 日志列表 -->
+            <div class="content-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">操作日志</h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-slate-400 text-sm">每页显示:</span>
+                        <select id="pageSize" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="10">10条</option>
+                            <option value="20">20条</option>
+                            <option value="50">50条</option>
+                            <option value="100">100条</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-3" id="logsList">
+                    <!-- 动态生成的日志列表 -->
+                </div>
+
+                <!-- 分页 -->
+                <div class="flex justify-center items-center space-x-4 mt-8">
+                    <button id="prevPage" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        上一页
+                    </button>
+                    <span class="text-slate-400">
+                        <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                    </span>
+                    <button id="nextPage" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        下一页
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSystemLogs();
+            setupEventListeners();
+        });
+
+        // 初始化系统日志
+        function initializeSystemLogs() {
+            loadLogsData();
+            updateLogStats();
+        }
+
+        // 加载日志数据
+        function loadLogsData() {
+            const logsList = document.getElementById('logsList');
+            logsList.innerHTML = '';
+
+            // 使用模拟数据
+            const logs = [
+                {
+                    id: 'log001',
+                    timestamp: '2024-12-07T10:30:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'LOGIN',
+                    resource: 'System',
+                    details: 'User logged in successfully',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log002',
+                    timestamp: '2024-12-07T10:35:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'CREATE_ARTIST',
+                    resource: 'Artist',
+                    details: 'Created new artist: Luna Star',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log003',
+                    timestamp: '2024-12-07T10:40:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'UPLOAD_SONG',
+                    resource: 'Song',
+                    details: 'Uploaded song: Electric Heartbeat',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log004',
+                    timestamp: '2024-12-07T11:15:00Z',
+                    user: 'musiclover2024',
+                    userId: 'user002',
+                    action: 'LOGIN',
+                    resource: 'System',
+                    details: 'User logged in successfully',
+                    ip: '192.168.1.101',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log005',
+                    timestamp: '2024-12-07T11:20:00Z',
+                    user: 'musiclover2024',
+                    userId: 'user002',
+                    action: 'CREATE_PLAYLIST',
+                    resource: 'Playlist',
+                    details: 'Created playlist: My Favorites',
+                    ip: '192.168.1.101',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log006',
+                    timestamp: '2024-12-07T12:00:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'UPDATE_USER',
+                    resource: 'User',
+                    details: 'Updated user status: rockfan88 -> inactive',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log007',
+                    timestamp: '2024-12-07T12:30:00Z',
+                    user: 'djmaster',
+                    userId: 'user003',
+                    action: 'LOGIN',
+                    resource: 'System',
+                    details: 'User logged in successfully',
+                    ip: '192.168.1.102',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log008',
+                    timestamp: '2024-12-07T13:00:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'DELETE_SONG',
+                    resource: 'Song',
+                    details: 'Deleted song: test_upload.mp3',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log009',
+                    timestamp: '2024-12-07T13:30:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'BATCH_OPERATION',
+                    resource: 'Artist',
+                    details: 'Batch updated 3 artists',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                },
+                {
+                    id: 'log010',
+                    timestamp: '2024-12-07T14:00:00Z',
+                    user: 'admin',
+                    userId: 'user001',
+                    action: 'LOGOUT',
+                    resource: 'System',
+                    details: 'User logged out',
+                    ip: '192.168.1.100',
+                    status: 'SUCCESS'
+                }
+            ];
+
+            logs.forEach(log => {
+                const logItem = createLogItem(log);
+                logsList.appendChild(logItem);
+            });
+        }
+
+        // 创建日志项
+        function createLogItem(log) {
+            const item = document.createElement('div');
+            item.className = 'log-item rounded-lg p-4';
+            
+            const statusClass = {
+                'SUCCESS': 'status-success',
+                'ERROR': 'status-error',
+                'WARNING': 'status-warning',
+                'INFO': 'status-info'
+            }[log.status] || 'status-info';
+
+            const actionIcon = getActionIcon(log.action);
+            
+            item.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 flex-1">
+                        <div class="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">
+                            ${actionIcon}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h4 class="text-white font-medium">${log.action}</h4>
+                                <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                                    ${log.status}
+                                </span>
+                            </div>
+                            <p class="text-slate-400 text-sm mb-1">${log.details}</p>
+                            <div class="flex items-center space-x-4 text-xs text-slate-500">
+                                <span>用户: ${log.user}</span>
+                                <span>资源: ${log.resource}</span>
+                                <span>IP: ${log.ip}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-slate-400 text-sm">
+                            ${formatDateTime(log.timestamp)}
+                        </div>
+                        <div class="text-slate-500 text-xs mt-1">
+                            ${formatTime(log.timestamp)}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return item;
+        }
+
+        // 获取操作图标
+        function getActionIcon(action) {
+            const icons = {
+                'LOGIN': '<svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M10 17l5-5-5-5v10zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>',
+                'LOGOUT': '<svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>',
+                'CREATE': '<svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>',
+                'UPDATE': '<svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>',
+                'DELETE': '<svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>',
+                'UPLOAD': '<svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/></svg>',
+                'BATCH_OPERATION': '<svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>'
+            };
+            
+            return icons[action] || icons['CREATE'];
+        }
+
+        // 更新日志统计
+        function updateLogStats() {
+            const logs = [
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' },
+                { status: 'SUCCESS' }
+            ];
+
+            const totalLogs = logs.length;
+            const successLogs = logs.filter(l => l.status === 'SUCCESS').length;
+            const warningLogs = logs.filter(l => l.status === 'WARNING').length;
+            const errorLogs = logs.filter(l => l.status === 'ERROR').length;
+
+            // 动画更新数字
+            animateNumber('totalLogsCount', totalLogs);
+            animateNumber('successLogsCount', successLogs);
+            animateNumber('warningLogsCount', warningLogs);
+            animateNumber('errorLogsCount', errorLogs);
+        }
+
+        // 数字动画
+        function animateNumber(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const startValue = 0;
+            
+            anime({
+                targets: { value: startValue },
+                value: targetValue,
+                duration: 1500,
+                easing: 'easeOutQuart',
+                update: function(anim) {
+                    element.textContent = Math.floor(anim.animatables[0].target.value).toLocaleString();
+                }
+            });
+        }
+
+        // 格式化日期时间
+        function formatDateTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // 格式化时间
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 导出日志按钮
+            document.getElementById('exportLogsBtn').addEventListener('click', function() {
+                exportLogs();
+            });
+
+            // 清空日志按钮
+            document.getElementById('clearLogsBtn').addEventListener('click', function() {
+                if (confirm('确定要清空所有日志吗？此操作不可恢复！')) {
+                    clearLogs();
+                }
+            });
+
+            // 筛选事件
+            const filters = ['actionFilter', 'statusFilter', 'userFilter', 'resourceFilter', 'dateFrom', 'dateTo'];
+            filters.forEach(filterId => {
+                document.getElementById(filterId).addEventListener('change', function() {
+                    filterLogs();
+                });
+            });
+
+            // 分页大小
+            document.getElementById('pageSize').addEventListener('change', function() {
+                updatePagination();
+            });
+        }
+
+        // 导出日志
+        function exportLogs() {
+            // 模拟导出功能
+            const csvContent = "data:text/csv;charset=utf-8,时间,用户,操作,资源,详情,IP,状态\n" +
+                "2024-12-07 10:30:00,admin,LOGIN,System,User logged in successfully,192.168.1.100,SUCCESS\n" +
+                "2024-12-07 10:35:00,admin,CREATE_ARTIST,Artist,Created new artist: Luna Star,192.168.1.100,SUCCESS";
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "system_logs.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('日志导出成功！', 'success');
+        }
+
+        // 清空日志
+        function clearLogs() {
+            document.getElementById('logsList').innerHTML = '';
+            updateLogStats();
+            showNotification('日志已清空！', 'success');
+        }
+
+        // 筛选日志
+        function filterLogs() {
+            const actionFilter = document.getElementById('actionFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const userFilter = document.getElementById('userFilter').value;
+            const resourceFilter = document.getElementById('resourceFilter').value;
+
+            const logItems = document.querySelectorAll('.log-item');
+            
+            logItems.forEach(item => {
+                let showItem = true;
+
+                // 这里可以添加实际的筛选逻辑
+                // 暂时显示所有项目
+                
+                item.style.display = showItem ? 'block' : 'none';
+            });
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('actionFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('userFilter').value = '';
+            document.getElementById('resourceFilter').value = '';
+            document.getElementById('dateFrom').value = '';
+            document.getElementById('dateTo').value = '';
+            
+            filterLogs();
+        }
+
+        // 更新分页
+        function updatePagination() {
+            // 分页逻辑
+            console.log('更新分页');
+        }
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

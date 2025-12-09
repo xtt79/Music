@@ -47,7 +47,7 @@
         <template #default="{ row }">
           <el-image
             :src="row.coverImage || '/default-cover.png'"
-            :preview-src-list="[row.coverImage]"
+            :preview-src-list="[]"
             fit="cover"
             style="width: 60px; height: 60px; border-radius: 8px"
           />
@@ -62,8 +62,13 @@
           {{ row.playCount?.toLocaleString() || 0 }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="200" fixed="right">
+
+      <!-- 播放量 -->
+      <el-table-column label="操作" width="240" fixed="right">
         <template #default="{ row }">
+          <el-button link type="primary" @click="handlePlay(row)">
+            {{ currentPlayingId === row.id ? '停止' : '播放' }}
+          </el-button>
           <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
           <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
         </template>
@@ -155,10 +160,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Check } from '@element-plus/icons-vue'
 import { musicApi, uploadFile } from '@/api'
+import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 
 const loading = ref(false)
 const musicList = ref([])
@@ -173,6 +178,8 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('添加音乐')
 const formRef = ref(null)
 const uploadUrl = '/api/upload'
+const audioRef = ref(null)
+const currentPlayingId = ref(null)
 
 const formData = reactive({
   id: null,
@@ -211,15 +218,18 @@ const loadMusicList = async () => {
   }
 }
 
-// 加载流派列表
+// 加载流派列表（合并默认选项）
 const loadGenres = async () => {
   try {
     const res = await musicApi.getGenres()
-    if (res.code === 200) {
-      genres.value = res.data || []
-    }
+    const serverGenres = (res.code === 200 ? res.data : []) || []
+    const defaultGenres = ['流行', '民谣', '摇滚', '嘻哈', '爵士', '古典', 'R&B']
+    // 合并并去重
+    genres.value = Array.from(new Set([...serverGenres, ...defaultGenres]))
   } catch (error) {
     console.error('加载流派列表失败:', error)
+    // 后端异常时仍提供默认选项
+    genres.value = ['流行', '民谣', '摇滚', '嘻哈', '爵士', '古典', 'R&B']
   }
 }
 
@@ -365,6 +375,55 @@ const handleCoverUploadSuccess = (response) => {
     ElMessage.success('封面图片上传成功')
   }
 }
+
+// 点击播放
+const handlePlay = (row) => {
+  if (!row.fileUrl) {
+    ElMessage.warning('未上传音乐文件')
+    return
+  }
+
+  if (!audioRef.value) {
+    audioRef.value = new Audio()
+  }
+
+  // 再次点击同一首可停止
+  if (currentPlayingId.value === row.id && !audioRef.value.paused) {
+    audioRef.value.pause()
+    audioRef.value.currentTime = 0
+    currentPlayingId.value = null
+    return
+  }
+
+  // 切换到新歌曲时停止旧的
+  if (!audioRef.value.paused) {
+    audioRef.value.pause()
+  }
+
+  // 设置音源并播放
+  const src = row.fileUrl.startsWith('http') ? row.fileUrl : row.fileUrl
+  audioRef.value.src = src
+  audioRef.value.play()
+    .then(() => {
+      currentPlayingId.value = row.id
+      audioRef.value.onended = () => {
+        currentPlayingId.value = null
+      }
+    })
+    .catch(err => {
+      console.error('播放失败', err)
+      ElMessage.error('播放失败')
+    })
+}
+
+// 组件卸载时停止播放
+onBeforeUnmount(() => {
+  if (audioRef.value) {
+    audioRef.value.pause()
+    audioRef.value.src = ''
+    currentPlayingId.value = null
+  }
+})
 
 onMounted(() => {
   loadMusicList()

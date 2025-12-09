@@ -1,0 +1,21 @@
+{
+  "name": "music-admin-system",
+  "version": "1.0.0",
+  "description": "音乐后台管理系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "keywords": [
+    "music",
+    "admin",
+    "management",
+    "system"
+  ],
+  "author": "",
+  "license": "MIT"
+}

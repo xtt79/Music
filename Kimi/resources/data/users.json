@@ -1,0 +1,57 @@
+[
+  {
+    "id": "user001",
+    "username": "admin",
+    "email": "admin@musicplatform.com",
+    "password": "admin123",
+    "avatar": "resources/images/artist1.png",
+    "role": "admin",
+    "status": "active",
+    "createdAt": "2024-01-15",
+    "lastLogin": "2024-12-07"
+  },
+  {
+    "id": "user002",
+    "username": "musiclover2024",
+    "email": "lover@music.com",
+    "password": "pass123",
+    "avatar": "resources/images/artist2.png",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2024-02-20",
+    "lastLogin": "2024-12-06"
+  },
+  {
+    "id": "user003",
+    "username": "djmaster",
+    "email": "dj@electro.com",
+    "password": "dj123456",
+    "avatar": "resources/images/artist3.png",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2024-03-10",
+    "lastLogin": "2024-12-05"
+  },
+  {
+    "id": "user004",
+    "username": "rockfan88",
+    "email": "rock@metal.com",
+    "password": "rock123",
+    "avatar": "resources/images/artist1.png",
+    "role": "user",
+    "status": "inactive",
+    "createdAt": "2024-04-05",
+    "lastLogin": "2024-11-20"
+  },
+  {
+    "id": "user005",
+    "username": "jazzenthusiast",
+    "email": "jazz@smooth.com",
+    "password": "jazz123",
+    "avatar": "resources/images/artist2.png",
+    "role": "user",
+    "status": "active",
+    "createdAt": "2024-05-12",
+    "lastLogin": "2024-12-07"
+  }
+]

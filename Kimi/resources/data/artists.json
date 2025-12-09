@@ -1,0 +1,57 @@
+[
+  {
+    "id": "artist001",
+    "name": "Luna Star",
+    "genre": "Pop",
+    "avatar": "resources/images/artist1.png",
+    "albumCount": 3,
+    "songCount": 24,
+    "status": "active",
+    "debutYear": 2020,
+    "description": "Rising pop sensation known for catchy melodies and powerful vocals"
+  },
+  {
+    "id": "artist002",
+    "name": "Thunder Rock",
+    "genre": "Rock",
+    "avatar": "resources/images/artist2.png",
+    "albumCount": 5,
+    "songCount": 42,
+    "status": "active",
+    "debutYear": 2015,
+    "description": "Hard rock band with electrifying performances and meaningful lyrics"
+  },
+  {
+    "id": "artist003",
+    "name": "Neon Pulse",
+    "genre": "Electronic",
+    "avatar": "resources/images/artist3.png",
+    "albumCount": 2,
+    "songCount": 18,
+    "status": "active",
+    "debutYear": 2022,
+    "description": "Electronic music producer creating immersive soundscapes"
+  },
+  {
+    "id": "artist004",
+    "name": "Jazz Harmony",
+    "genre": "Jazz",
+    "avatar": "resources/images/artist1.png",
+    "albumCount": 4,
+    "songCount": 32,
+    "status": "active",
+    "debutYear": 2018,
+    "description": "Contemporary jazz ensemble with smooth melodies"
+  },
+  {
+    "id": "artist005",
+    "name": "Acoustic Dreams",
+    "genre": "Folk",
+    "avatar": "resources/images/artist2.png",
+    "albumCount": 3,
+    "songCount": 21,
+    "status": "inactive",
+    "debutYear": 2019,
+    "description": "Indie folk artist with heartfelt storytelling"
+  }
+]

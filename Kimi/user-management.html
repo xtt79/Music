@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐后台管理系统 - 用户管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            background: rgba(30, 41, 59, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-left: 3px solid #6366f1;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .modal {
+            backdrop-filter: blur(10px);
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="flex">
+    <!-- 侧边栏 -->
+    <div id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-0 z-20">
+        <!-- Logo -->
+        <div class="p-6 border-b border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">音乐后台</h1>
+                    <p class="text-slate-400 text-xs">管理系统</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li>
+                    <a href="dashboard.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V6h-8z"/>
+                        </svg>
+                        <span>仪表盘</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="music-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                        </svg>
+                        <span>音乐管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="user-management.html" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-lg text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01.99L12 13l-2.99-4.01A2.5 2.5 0 0 0 7 8H5.46c-.8 0-1.49.59-1.42 1.37L6.5 16H9v6h2v-6h2v6h2z"/>
+                        </svg>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="playlist-management.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                        </svg>
+                        <span>歌单管理</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="system-logs.html" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-lg text-slate-300 hover:text-white">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                        <span>系统日志</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- 主内容区域 -->
+    <div class="flex-1 ml-64">
+        <!-- 顶部导航栏 -->
+        <header class="bg-slate-900 bg-opacity-50 backdrop-filter backdrop-blur-lg border-b border-slate-700">
+            <div class="px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button id="sidebarToggle" class="md:hidden text-slate-400 hover:text-white">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold text-white">用户管理</h2>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- 搜索框 -->
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="搜索用户..." 
+                               class="bg-slate-800 text-white px-4 py-2 pl-10 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500 w-64">
+                        <svg class="w-5 h-5 text-slate-400 absolute left-3 top-2.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- 添加用户按钮 -->
+                    <button id="addUserBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                        添加用户
+                    </button>
+                    
+                    <!-- 用户头像 -->
+                    <div class="flex items-center space-x-3">
+                        <img id="userAvatar" src="resources/images/artist1.png" alt="用户头像" class="w-8 h-8 rounded-full">
+                        <span id="userName" class="text-sm text-white font-medium">admin</span>
+                        <button id="logoutBtn" class="text-slate-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <main class="main-content p-6">
+            <!-- 统计概览 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">总用户数</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="totalUsersCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01.99L12 13l-2.99-4.01A2.5 2.5 0 0 0 7 8H5.46c-.8 0-1.49.59-1.42 1.37L6.5 16H9v6h2v-6h2v6h2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">活跃用户</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="activeUsersCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">新增用户</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="newUsersCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-slate-400 text-sm">管理员</p>
+                            <p class="text-2xl font-bold text-white mt-1" id="adminUsersCount">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-600 bg-opacity-20 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户活跃度图表 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="chart-container rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">用户活跃度分析</h3>
+                    <div id="userActivityChart" style="height: 300px;"></div>
+                </div>
+
+                <div class="chart-container rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4">用户角色分布</h3>
+                    <div id="userRoleChart" style="height: 300px;"></div>
+                </div>
+            </div>
+
+            <!-- 用户列表 -->
+            <div class="content-card rounded-xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-semibold text-white">用户列表</h3>
+                    <div class="flex space-x-2">
+                        <select id="statusFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部状态</option>
+                            <option value="active">活跃</option>
+                            <option value="inactive">停用</option>
+                        </select>
+                        <select id="roleFilter" class="bg-slate-700 text-white px-3 py-2 rounded-lg border border-slate-600 focus:outline-none focus:border-indigo-500">
+                            <option value="">全部角色</option>
+                            <option value="admin">管理员</option>
+                            <option value="user">普通用户</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="usersGrid">
+                    <!-- 动态生成的用户卡片 -->
+                </div>
+
+                <!-- 分页 -->
+                <div class="flex justify-center items-center space-x-4 mt-8">
+                    <button id="prevPage" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        上一页
+                    </button>
+                    <span class="text-slate-400">
+                        <span id="currentPage">1</span> / <span id="totalPages">1</span>
+                    </span>
+                    <button id="nextPage" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        下一页
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div id="addUserModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold text-white mb-4">添加新用户</h3>
+            <form id="addUserForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">用户名</label>
+                    <input type="text" id="newUsername" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">邮箱</label>
+                    <input type="email" id="newEmail" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">密码</label>
+                    <input type="password" id="newPassword" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">角色</label>
+                    <select id="newUserRole" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('addUserModal')" class="px-4 py-2 text-slate-300 hover:text-white transition-colors">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 编辑用户模态框 -->
+    <div id="editUserModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-slate-800 rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold text-white mb-4">编辑用户信息</h3>
+            <form id="editUserForm" class="space-y-4">
+                <input type="hidden" id="editUserId">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">用户名</label>
+                    <input type="text" id="editUsername" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">邮箱</label>
+                    <input type="email" id="editEmail" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">角色</label>
+                    <select id="editUserRole" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                        <option value="user">普通用户</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">状态</label>
+                    <select id="editUserStatus" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+                        <option value="active">活跃</option>
+                        <option value="inactive">停用</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="closeModal('editUserModal')" class="px-4 py-2 text-slate-300 hover:text-white transition-colors">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeUserManagement();
+            initializeCharts();
+            setupEventListeners();
+        });
+
+        // 初始化用户管理
+        function initializeUserManagement() {
+            loadUsersData();
+            updateUserStats();
+        }
+
+        // 加载用户数据
+        function loadUsersData() {
+            const usersGrid = document.getElementById('usersGrid');
+            usersGrid.innerHTML = '';
+
+            // 使用模拟数据
+            const users = [
+                {
+                    id: 'user001',
+                    username: 'admin',
+                    email: 'admin@musicplatform.com',
+                    avatar: 'resources/images/artist1.png',
+                    role: 'admin',
+                    status: 'active',
+                    createdAt: '2024-01-15',
+                    lastLogin: '2024-12-07'
+                },
+                {
+                    id: 'user002',
+                    username: 'musiclover2024',
+                    email: 'lover@music.com',
+                    avatar: 'resources/images/artist2.png',
+                    role: 'user',
+                    status: 'active',
+                    createdAt: '2024-02-20',
+                    lastLogin: '2024-12-06'
+                },
+                {
+                    id: 'user003',
+                    username: 'djmaster',
+                    email: 'dj@electro.com',
+                    avatar: 'resources/images/artist3.png',
+                    role: 'user',
+                    status: 'active',
+                    createdAt: '2024-03-10',
+                    lastLogin: '2024-12-05'
+                },
+                {
+                    id: 'user004',
+                    username: 'rockfan88',
+                    email: 'rock@metal.com',
+                    avatar: 'resources/images/artist1.png',
+                    role: 'user',
+                    status: 'inactive',
+                    createdAt: '2024-04-05',
+                    lastLogin: '2024-11-20'
+                },
+                {
+                    id: 'user005',
+                    username: 'jazzenthusiast',
+                    email: 'jazz@smooth.com',
+                    avatar: 'resources/images/artist2.png',
+                    role: 'user',
+                    status: 'active',
+                    createdAt: '2024-05-12',
+                    lastLogin: '2024-12-07'
+                }
+            ];
+
+            users.forEach(user => {
+                const userCard = createUserCard(user);
+                usersGrid.appendChild(userCard);
+            });
+        }
+
+        // 创建用户卡片
+        function createUserCard(user) {
+            const card = document.createElement('div');
+            card.className = 'user-card rounded-xl p-6';
+            
+            card.innerHTML = `
+                <div class="flex items-center space-x-4 mb-4">
+                    <div class="relative">
+                        <img src="${user.avatar}" alt="${user.username}" class="w-16 h-16 rounded-full object-cover">
+                        <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-slate-800 ${user.status === 'active' ? 'bg-green-500' : 'bg-red-500'}"></div>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-white font-semibold">${user.username}</h4>
+                        <p class="text-slate-400 text-sm">${user.email}</p>
+                        <span class="inline-block px-2 py-1 text-xs rounded-full mt-1 ${user.role === 'admin' ? 'bg-purple-600 text-purple-100' : 'bg-blue-600 text-blue-100'}">
+                            ${user.role === 'admin' ? '管理员' : '普通用户'}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">状态:</span>
+                        <span class="px-2 py-1 text-xs rounded-full ${user.status === 'active' ? 'status-active' : 'status-inactive'}">
+                            ${user.status === 'active' ? '活跃' : '停用'}
+                        </span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">注册时间:</span>
+                        <span class="text-slate-300">${user.createdAt}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">最后登录:</span>
+                        <span class="text-slate-300">${user.lastLogin}</span>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button onclick="editUser('${user.id}')" class="flex-1 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg transition-colors">
+                        编辑
+                    </button>
+                    <button onclick="toggleUserStatus('${user.id}')" class="flex-1 px-3 py-2 ${user.status === 'active' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'} text-white text-sm rounded-lg transition-colors">
+                        ${user.status === 'active' ? '停用' : '启用'}
+                    </button>
+                    <button onclick="deleteUser('${user.id}')" class="px-3 py-2 bg-slate-600 hover:bg-slate-700 text-white text-sm rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 更新用户统计
+        function updateUserStats() {
+            const users = [
+                { status: 'active', role: 'admin' },
+                { status: 'active', role: 'user' },
+                { status: 'active', role: 'user' },
+                { status: 'inactive', role: 'user' },
+                { status: 'active', role: 'user' }
+            ];
+
+            const totalUsers = users.length;
+            const activeUsers = users.filter(u => u.status === 'active').length;
+            const newUsers = 3; // 模拟新增用户数
+            const adminUsers = users.filter(u => u.role === 'admin').length;
+
+            // 动画更新数字
+            animateNumber('totalUsersCount', totalUsers);
+            animateNumber('activeUsersCount', activeUsers);
+            animateNumber('newUsersCount', newUsers);
+            animateNumber('adminUsersCount', adminUsers);
+        }
+
+        // 数字动画
+        function animateNumber(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const startValue = 0;
+            
+            anime({
+                targets: { value: startValue },
+                value: targetValue,
+                duration: 1500,
+                easing: 'easeOutQuart',
+                update: function(anim) {
+                    element.textContent = Math.floor(anim.animatables[0].target.value);
+                }
+            });
+        }
+
+        // 初始化图表
+        function initializeCharts() {
+            initUserActivityChart();
+            initUserRoleChart();
+        }
+
+        // 用户活跃度图表
+        function initUserActivityChart() {
+            const chart = echarts.init(document.getElementById('userActivityChart'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    axisLine: { lineStyle: { color: '#64748b' } },
+                    axisLabel: { color: '#94a3b8' }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#64748b' } },
+                    axisLabel: { color: '#94a3b8' }
+                },
+                series: [{
+                    data: [120, 200, 150, 80, 70, 110, 130],
+                    type: 'bar',
+                    itemStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: '#6366f1' },
+                                { offset: 1, color: '#8b5cf6' }
+                            ]
+                        }
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+        }
+
+        // 用户角色分布图表
+        function initUserRoleChart() {
+            const chart = echarts.init(document.getElementById('userRoleChart'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [{
+                    type: 'pie',
+                    radius: '70%',
+                    data: [
+                        { value: 4, name: '普通用户', itemStyle: { color: '#6366f1' } },
+                        { value: 1, name: '管理员', itemStyle: { color: '#8b5cf6' } }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+            
+            chart.setOption(option);
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 添加用户按钮
+            document.getElementById('addUserBtn').addEventListener('click', function() {
+                showModal('addUserModal');
+            });
+
+            // 添加用户表单
+            document.getElementById('addUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const userData = {
+                    username: document.getElementById('newUsername').value,
+                    email: document.getElementById('newEmail').value,
+                    password: document.getElementById('newPassword').value,
+                    role: document.getElementById('newUserRole').value
+                };
+
+                console.log('添加用户:', userData);
+                showNotification('用户添加成功！', 'success');
+                closeModal('addUserModal');
+                this.reset();
+            });
+
+            // 编辑用户表单
+            document.getElementById('editUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const userData = {
+                    id: document.getElementById('editUserId').value,
+                    username: document.getElementById('editUsername').value,
+                    email: document.getElementById('editEmail').value,
+                    role: document.getElementById('editUserRole').value,
+                    status: document.getElementById('editUserStatus').value
+                };
+
+                console.log('编辑用户:', userData);
+                showNotification('用户信息更新成功！', 'success');
+                closeModal('editUserModal');
+            });
+
+            // 搜索功能
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterUsers(searchTerm);
+            });
+
+            // 筛选功能
+            document.getElementById('statusFilter').addEventListener('change', function() {
+                filterUsers();
+            });
+
+            document.getElementById('roleFilter').addEventListener('change', function() {
+                filterUsers();
+            });
+        }
+
+        // 显示模态框
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            anime({
+                targets: modal,
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuart'
+            });
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            
+            anime({
+                targets: modal,
+                opacity: [1, 0],
+                duration: 300,
+                easing: 'easeOutQuart',
+                complete: function() {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+
+        // 编辑用户
+        function editUser(userId) {
+            // 模拟获取用户数据
+            const user = {
+                id: userId,
+                username: 'musiclover2024',
+                email: 'lover@music.com',
+                role: 'user',
+                status: 'active'
+            };
+
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserStatus').value = user.status;
+
+            showModal('editUserModal');
+        }
+
+        // 切换用户状态
+        function toggleUserStatus(userId) {
+            showNotification('用户状态已更新！', 'success');
+        }
+
+        // 删除用户
+        function deleteUser(userId) {
+            if (confirm('确定要删除这个用户吗？')) {
+                showNotification('用户已删除！', 'success');
+            }
+        }
+
+        // 筛选用户
+        function filterUsers(searchTerm = '') {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const roleFilter = document.getElementById('roleFilter').value;
+
+            const userCards = document.querySelectorAll('.user-card');
+            
+            userCards.forEach(card => {
+                const username = card.querySelector('h4').textContent.toLowerCase();
+                const email = card.querySelector('p').textContent.toLowerCase();
+                const status = card.querySelector('.status-active, .status-inactive').textContent.includes('活跃') ? 'active' : 'inactive';
+                const role = card.querySelector('.bg-purple-600, .bg-blue-600').textContent.includes('管理员') ? 'admin' : 'user';
+
+                let showCard = true;
+
+                // 搜索过滤
+                if (searchTerm && !username.includes(searchTerm) && !email.includes(searchTerm)) {
+                    showCard = false;
+                }
+
+                // 状态过滤
+                if (statusFilter && status !== statusFilter) {
+                    showCard = false;
+                }
+
+                // 角色过滤
+                if (roleFilter && role !== roleFilter) {
+                    showCard = false;
+                }
+
+                card.style.display = showCard ? 'block' : 'none';
+            });
+        }
+
+        // 侧边栏切换
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        });
+
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

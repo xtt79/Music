@@ -10,6 +10,7 @@ import java.io.IOException;
  * 
  * @author YOLOMusic Team
  */
+//配置拦截路径 什么路径都要拦截
 @WebFilter(
         filterName = "CharacterEncodingFilter",
         urlPatterns = "/*"
@@ -35,6 +36,7 @@ public class CharacterEncodingFilter implements Filter {
         response.setCharacterEncoding(encoding);
         
         // 继续执行过滤器链
+        //拦截完之后需要放行
         chain.doFilter(request, response);
     }
     
