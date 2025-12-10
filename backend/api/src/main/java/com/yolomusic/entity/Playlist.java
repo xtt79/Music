@@ -11,6 +11,7 @@ public class Playlist {
     private String description;       // 歌单描述
     private String coverImage;        // 歌单封面图片URL
     private Integer creatorId;       // 创建者用户ID
+    private String creatorName;      // 创建者昵称
     private Integer musicCount;       // 歌单内音乐数量
     private String createdAt;        // 创建时间
     
@@ -81,6 +82,14 @@ public class Playlist {
     
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
     }
 }
 

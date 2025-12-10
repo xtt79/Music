@@ -1,4 +1,4 @@
-/* 全局样式 */
+/* 全局样式（统一到音乐管理风格） */
 
 :root {
   --primary-color: #6366f1;
@@ -7,13 +7,19 @@
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
   --info-color: #3b82f6;
-  
+
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-card: rgba(255, 255, 255, 0.05);
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background: linear-gradient(135deg, #0b1224 0%, #0f172a 40%, #111827 100%);
+  color: #e5e7eb;
+  font-family: 'Inter', 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* 滚动条样式 */
@@ -50,5 +56,73 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* 页面面板统一样式 */
+.page-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+/* 表格深色主题（全局） */
+.el-table {
+  --el-table-bg-color: transparent;
+  --el-table-header-bg-color: rgba(17, 24, 39, 0.75);
+  --el-table-header-text-color: #cbd5e1;
+  --el-table-text-color: #e5e7eb;
+  --el-table-border-color: rgba(255, 255, 255, 0.08);
+  --el-table-row-hover-bg-color: rgba(30, 41, 59, 0.7);
+  background: transparent;
+}
+
+.el-table thead .el-table__cell {
+  font-weight: 700;
+  color: #cbd5e1;
+  background: rgba(17, 24, 39, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.el-table .el-table__row {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.el-table .el-table__row:hover {
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.7));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+.el-table .el-table__cell {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.el-table .el-table__row:hover .el-table__cell {
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+/* 链接按钮颜色（播放/编辑/删除等） */
+.el-button--primary.is-link {
+  color: #60a5fa;
+}
+
+.el-button--danger.is-link {
+  color: #f87171;
+}
+
+/* 输入与选择在深色背景的适配 */
+.el-input__wrapper,
+.el-select .el-input__wrapper {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.el-input__inner,
+.el-select__caret {
+  color: #e5e7eb;
 }
 

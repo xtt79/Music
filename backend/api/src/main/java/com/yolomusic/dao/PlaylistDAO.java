@@ -31,14 +31,14 @@ public class PlaylistDAO {
         
         try {
             conn = DBUtil.getConnection();
-            StringBuilder sql = new StringBuilder("SELECT * FROM playlist WHERE 1=1");
+            StringBuilder sql = new StringBuilder("SELECT p.*, u.nickname AS creator_name FROM playlist p LEFT JOIN user u ON p.creator_id = u.id WHERE 1=1");
             
             // 添加搜索条件
             if (keyword != null && !keyword.isEmpty()) {
                 sql.append(" AND name LIKE ?");
             }
             
-            sql.append(" ORDER BY created_at DESC LIMIT ? OFFSET ?");
+            sql.append(" ORDER BY p.created_at DESC LIMIT ? OFFSET ?");
             
             pstmt = conn.prepareStatement(sql.toString());
             int paramIndex = 1;
@@ -59,6 +59,7 @@ public class PlaylistDAO {
                 playlist.setDescription(rs.getString("description"));
                 playlist.setCoverImage(rs.getString("cover_image"));
                 playlist.setCreatorId(rs.getInt("creator_id"));
+                playlist.setCreatorName(rs.getString("creator_name"));
                 playlist.setMusicCount(rs.getInt("music_count"));
                 playlist.setCreatedAt(rs.getString("created_at"));
                 playlists.add(playlist);
@@ -126,7 +127,7 @@ public class PlaylistDAO {
         
         try {
             conn = DBUtil.getConnection();
-            String sql = "SELECT * FROM playlist WHERE id = ?";
+            String sql = "SELECT p.*, u.nickname AS creator_name FROM playlist p LEFT JOIN user u ON p.creator_id = u.id WHERE p.id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, id);
             
@@ -139,6 +140,7 @@ public class PlaylistDAO {
                 playlist.setDescription(rs.getString("description"));
                 playlist.setCoverImage(rs.getString("cover_image"));
                 playlist.setCreatorId(rs.getInt("creator_id"));
+                playlist.setCreatorName(rs.getString("creator_name"));
                 playlist.setMusicCount(rs.getInt("music_count"));
                 playlist.setCreatedAt(rs.getString("created_at"));
                 return playlist;
@@ -165,13 +167,14 @@ public class PlaylistDAO {
         
         try {
             conn = DBUtil.getConnection();
-            String sql = "INSERT INTO playlist (name, description, cover_image, creator_id, music_count) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO playlist (name, description, cover_image, creator_id, creator_name, music_count, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())";
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, playlist.getName());
             pstmt.setString(2, playlist.getDescription());
             pstmt.setString(3, playlist.getCoverImage());
             pstmt.setInt(4, playlist.getCreatorId());
-            pstmt.setInt(5, playlist.getMusicCount() != null ? playlist.getMusicCount() : 0);
+            pstmt.setString(5, playlist.getCreatorName());
+            pstmt.setInt(6, playlist.getMusicCount() != null ? playlist.getMusicCount() : 0);
             
             int rows = pstmt.executeUpdate();
             return rows > 0;
@@ -269,7 +272,7 @@ public class PlaylistDAO {
             }
             
             // 添加关联
-            String sql = "INSERT INTO playlist_music (playlist_id, music_id) VALUES (?, ?)";
+            String sql = "INSERT INTO playlist_music (playlist_id, music_id, added_at) VALUES (?, ?, NOW())";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, playlistId);
             pstmt.setInt(2, musicId);
@@ -332,33 +335,49 @@ public class PlaylistDAO {
      * 获取歌单中的音乐列表
      * 
      * @param playlistId 歌单ID
-     * @return 音乐ID列表
+     * @return 音乐详情列表（含添加时间）
      */
-    public List<Integer> getMusicIdsByPlaylistId(Integer playlistId) {
-        List<Integer> musicIds = new ArrayList<>();
+    public List<com.yolomusic.entity.Music> getMusicDetailsByPlaylistId(Integer playlistId) {
+        List<com.yolomusic.entity.Music> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        
+
         try {
             conn = DBUtil.getConnection();
-            String sql = "SELECT music_id FROM playlist_music WHERE playlist_id = ? ORDER BY added_at";
+            String sql = "SELECT m.*, pm.added_at " +
+                    "FROM playlist_music pm " +
+                    "JOIN music m ON pm.music_id = m.id " +
+                    "WHERE pm.playlist_id = ? " +
+                    "ORDER BY pm.added_at DESC";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, playlistId);
-            
+
             rs = pstmt.executeQuery();
-            
+
             while (rs.next()) {
-                musicIds.add(rs.getInt("music_id"));
+                com.yolomusic.entity.Music music = new com.yolomusic.entity.Music();
+                music.setId(rs.getInt("id"));
+                music.setTitle(rs.getString("title"));
+                music.setArtist(rs.getString("artist"));
+                music.setAlbum(rs.getString("album"));
+                music.setGenre(rs.getString("genre"));
+                music.setFileUrl(rs.getString("file_url"));
+                music.setCoverImage(rs.getString("cover_image"));
+                music.setPlayCount(rs.getInt("play_count"));
+                music.setStatus(rs.getString("status"));
+                music.setCreatedAt(rs.getString("created_at"));
+                music.setAddedAt(rs.getString("added_at"));
+                list.add(music);
             }
         } catch (SQLException e) {
-            System.err.println("查询歌单音乐列表失败: " + e.getMessage());
+            System.err.println("查询歌单音乐详情失败: " + e.getMessage());
             e.printStackTrace();
         } finally {
             DBUtil.closeAll(conn, pstmt, rs);
         }
-        
-        return musicIds;
+
+        return list;
     }
     
     /**

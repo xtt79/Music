@@ -16,6 +16,7 @@ public class Music {
     private Integer playCount;       // 播放次数统计
     private String status;           // 音乐状态：published-已发布，draft-草稿
     private String createdAt;       // 创建时间
+    private String addedAt;         // 在歌单中的添加时间（联表查询用）
     
     // 构造函数
     public Music() {
@@ -111,6 +112,14 @@ public class Music {
     
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAddedAt() {
+        return addedAt;
+    }
+
+    public void setAddedAt(String addedAt) {
+        this.addedAt = addedAt;
     }
 }
 

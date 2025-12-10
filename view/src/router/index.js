@@ -18,7 +18,7 @@ const routes = [
         path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@/views/Dashboard.vue'),
-        meta: { title: '仪表盘', icon: 'Odometer' }
+        meta: { title: '仪表盘', icon: 'Odometer', requiresAdmin: true }
       },
       {
         path: 'music',
@@ -30,7 +30,7 @@ const routes = [
         path: 'user',
         name: 'User',
         component: () => import('@/views/User.vue'),
-        meta: { title: '用户管理', icon: 'User' }
+        meta: { title: '用户管理', icon: 'User', requiresAdmin: true }
       },
       {
         path: 'playlist',
@@ -42,7 +42,7 @@ const routes = [
         path: 'log',
         name: 'Log',
         component: () => import('@/views/Log.vue'),
-        meta: { title: '操作日志', icon: 'Document' }
+        meta: { title: '操作日志', icon: 'Document', requiresAdmin: true }
       }
     ]
   }
@@ -59,6 +59,9 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth && !user) {
     next('/login')
+  } else if (to.meta.requiresAdmin && user?.role !== 'admin') {
+    // 普通用户禁止访问管理员页面，跳转到音乐管理
+    next('/music')
   } else if (to.path === '/login' && user) {
     next('/')
   } else {

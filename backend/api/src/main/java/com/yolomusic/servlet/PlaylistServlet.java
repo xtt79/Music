@@ -3,6 +3,7 @@ package com.yolomusic.servlet;
 import com.yolomusic.dao.OperationLogDAO;
 import com.yolomusic.dao.PlaylistDAO;
 import com.yolomusic.entity.Playlist;
+import com.yolomusic.entity.User;
 import com.yolomusic.util.FileUtil;
 import com.yolomusic.util.ResponseUtil;
 
@@ -78,22 +79,24 @@ public class PlaylistServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        // 检查登录状态
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             ResponseUtil.error(response, 401, "请先登录");
             return;
         }
-
-        Integer userId = (Integer) session.getAttribute("userId");
+        User currentUser = getSessionUser(session);
+        if (currentUser == null) {
+            ResponseUtil.error(response, 401, "请先登录");
+            return;
+        }
+        Integer userId = currentUser.getId();
+        boolean isAdmin = "admin".equalsIgnoreCase(currentUser.getRole());
         String action = request.getParameter("action");
 
         if ("addMusic".equals(action)) {
-            // 添加音乐到歌单
-            addMusicToPlaylist(request, response, userId);
+            addMusicToPlaylist(request, response, userId, isAdmin);
         } else {
-            // 创建歌单
-            createPlaylist(request, response, userId);
+            createPlaylist(request, response, currentUser);
         }
     }
 
@@ -105,14 +108,18 @@ public class PlaylistServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
-        // 检查登录状态
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             ResponseUtil.error(response, 401, "请先登录");
             return;
         }
-
-        Integer userId = (Integer) session.getAttribute("userId");
+        User currentUser = getSessionUser(session);
+        if (currentUser == null) {
+            ResponseUtil.error(response, 401, "请先登录");
+            return;
+        }
+        Integer userId = currentUser.getId();
+        boolean isAdmin = "admin".equalsIgnoreCase(currentUser.getRole());
 
         // 获取路径参数
         String pathInfo = request.getPathInfo();
@@ -142,10 +149,13 @@ public class PlaylistServlet extends HttpServlet {
         @SuppressWarnings("unchecked")
         java.util.Map<String, Object> params = gson.fromJson(requestBody, java.util.Map.class);
 
-        // 查询原歌单信息
         Playlist playlist = playlistDAO.findById(id);
         if (playlist == null) {
             ResponseUtil.error(response, 404, "歌单不存在");
+            return;
+        }
+        if (!canEdit(playlist, userId, isAdmin)) {
+            ResponseUtil.error(response, 403, "无权限编辑该歌单");
             return;
         }
 
@@ -173,20 +183,24 @@ public class PlaylistServlet extends HttpServlet {
     @Override
     protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        // 检查登录状态
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
             ResponseUtil.error(response, 401, "请先登录");
             return;
         }
-
-        Integer userId = (Integer) session.getAttribute("userId");
+        User currentUser = getSessionUser(session);
+        if (currentUser == null) {
+            ResponseUtil.error(response, 401, "请先登录");
+            return;
+        }
+        Integer userId = currentUser.getId();
+        boolean isAdmin = "admin".equalsIgnoreCase(currentUser.getRole());
 
         String action = request.getParameter("action");
 
         if ("removeMusic".equals(action)) {
             // 从歌单移除音乐
-            removeMusicFromPlaylist(request, response, userId);
+            removeMusicFromPlaylist(request, response, userId, isAdmin);
         } else {
             // 删除歌单
             String pathInfo = request.getPathInfo();
@@ -204,10 +218,13 @@ public class PlaylistServlet extends HttpServlet {
                 return;
             }
 
-            // 查询歌单信息，用于删除封面
             Playlist playlist = playlistDAO.findById(id);
             if (playlist == null) {
                 ResponseUtil.error(response, 404, "歌单不存在");
+                return;
+            }
+            if (!canEdit(playlist, userId, isAdmin)) {
+                ResponseUtil.error(response, 403, "无权限删除该歌单");
                 return;
             }
 
@@ -240,7 +257,6 @@ public class PlaylistServlet extends HttpServlet {
         int page = pageStr != null ? Integer.parseInt(pageStr) : 1;
         int pageSize = pageSizeStr != null ? Integer.parseInt(pageSizeStr) : 10;
 
-        // 查询数据
         List<Playlist> playlists = playlistDAO.findAll(page, pageSize, keyword);
         int total = playlistDAO.count(keyword);
 
@@ -270,7 +286,7 @@ public class PlaylistServlet extends HttpServlet {
     /**
      * 创建歌单
      */
-    private void createPlaylist(HttpServletRequest request, HttpServletResponse response, Integer userId) throws IOException {
+    private void createPlaylist(HttpServletRequest request, HttpServletResponse response, User user) throws IOException {
         // 从 JSON请求体中读取参数
         StringBuilder sb = new StringBuilder();
         String line;
@@ -289,14 +305,15 @@ public class PlaylistServlet extends HttpServlet {
         }
 
         // 设置创建者和音乐数量
-        playlist.setCreatorId(userId);
+        playlist.setCreatorId(user.getId());
+        playlist.setCreatorName(user.getNickname() != null ? user.getNickname() : user.getUsername());
         playlist.setMusicCount(0);
 
         // 添加歌单
         boolean success = playlistDAO.insert(playlist);
 
         if (success) {
-            logDAO.insert(userId, "CREATE_PLAYLIST", "创建歌单: " + playlist.getName());
+            logDAO.insert(user.getId(), "CREATE_PLAYLIST", "创建歌单: " + playlist.getName());
             ResponseUtil.success(response, "创建歌单成功", playlist);
         } else {
             ResponseUtil.error(response, 500, "创建歌单失败");
@@ -306,7 +323,7 @@ public class PlaylistServlet extends HttpServlet {
     /**
      * 添加音乐到歌单
      */
-    private void addMusicToPlaylist(HttpServletRequest request, HttpServletResponse response, Integer userId) throws IOException {
+    private void addMusicToPlaylist(HttpServletRequest request, HttpServletResponse response, Integer userId, boolean isAdmin) throws IOException {
         String playlistIdStr = request.getParameter("playlistId");
         String musicIdStr = request.getParameter("musicId");
 
@@ -318,6 +335,16 @@ public class PlaylistServlet extends HttpServlet {
         try {
             Integer playlistId = Integer.parseInt(playlistIdStr);
             Integer musicId = Integer.parseInt(musicIdStr);
+
+            Playlist playlist = playlistDAO.findById(playlistId);
+            if (playlist == null) {
+                ResponseUtil.error(response, 404, "歌单不存在");
+                return;
+            }
+            if (!canEdit(playlist, userId, isAdmin)) {
+                ResponseUtil.error(response, 403, "无权限编辑该歌单");
+                return;
+            }
 
             boolean success = playlistDAO.addMusicToPlaylist(playlistId, musicId);
 
@@ -335,7 +362,7 @@ public class PlaylistServlet extends HttpServlet {
     /**
      * 从歌单移除音乐
      */
-    private void removeMusicFromPlaylist(HttpServletRequest request, HttpServletResponse response, Integer userId) throws IOException {
+    private void removeMusicFromPlaylist(HttpServletRequest request, HttpServletResponse response, Integer userId, boolean isAdmin) throws IOException {
         String playlistIdStr = request.getParameter("playlistId");
         String musicIdStr = request.getParameter("musicId");
 
@@ -347,6 +374,16 @@ public class PlaylistServlet extends HttpServlet {
         try {
             Integer playlistId = Integer.parseInt(playlistIdStr);
             Integer musicId = Integer.parseInt(musicIdStr);
+
+            Playlist playlist = playlistDAO.findById(playlistId);
+            if (playlist == null) {
+                ResponseUtil.error(response, 404, "歌单不存在");
+                return;
+            }
+            if (!canEdit(playlist, userId, isAdmin)) {
+                ResponseUtil.error(response, 403, "无权限编辑该歌单");
+                return;
+            }
 
             boolean success = playlistDAO.removeMusicFromPlaylist(playlistId, musicId);
 
@@ -365,7 +402,41 @@ public class PlaylistServlet extends HttpServlet {
      * 获取歌单中的音乐列表
      */
     private void getPlaylistMusic(Integer playlistId, HttpServletResponse response) throws IOException {
-        List<Integer> musicIds = playlistDAO.getMusicIdsByPlaylistId(playlistId);
-        ResponseUtil.success(response, "查询成功", musicIds);
+        List<com.yolomusic.entity.Music> musicList = playlistDAO.getMusicDetailsByPlaylistId(playlistId);
+        ResponseUtil.success(response, "查询成功", musicList);
+    }
+
+    private User getSessionUser(HttpSession session) {
+        Object obj = session.getAttribute("user");
+        if (obj instanceof User) {
+            return (User) obj;
+        }
+        // 兼容只存 userId/role/nickname 的情况
+        User user = new User();
+        Object uid = session.getAttribute("userId");
+        if (uid instanceof Integer) {
+            user.setId((Integer) uid);
+        }
+        Object role = session.getAttribute("role");
+        if (role instanceof String) {
+            user.setRole((String) role);
+        }
+        Object nickname = session.getAttribute("nickname");
+        if (nickname instanceof String) {
+            user.setNickname((String) nickname);
+        }
+        Object username = session.getAttribute("username");
+        if (username instanceof String) {
+            user.setUsername((String) username);
+        }
+        if (user.getId() == null) {
+            return null;
+        }
+        return user;
+    }
+
+    private boolean canEdit(Playlist playlist, Integer userId, boolean isAdmin) {
+        if (isAdmin) return true;
+        return playlist != null && playlist.getCreatorId() != null && playlist.getCreatorId().equals(userId);
     }
 }

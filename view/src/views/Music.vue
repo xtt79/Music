@@ -1,91 +1,105 @@
 <template>
   <div class="music-page">
-    <div class="page-header">
-      <h2 class="page-title">音乐管理</h2>
+<div class="page-header">
+      <div>
+        <div class="page-subtitle">音乐后台 · 列表</div>
+        <h2 class="page-title">音乐管理</h2>
+      </div>
       <el-button type="primary" @click="handleAdd">
         <el-icon><Plus /></el-icon>
         添加音乐
       </el-button>
     </div>
 
-    <!-- 搜索和筛选 -->
-    <div class="search-bar">
-      <el-input
-        v-model="searchKeyword"
-        placeholder="搜索音乐、歌手、专辑..."
-        style="width: 300px"
-        clearable
-        @clear="handleSearch"
-        @keyup.enter="handleSearch"
-      >
-        <template #prefix>
-          <el-icon><Search /></el-icon>
-        </template>
-      </el-input>
-      <el-select v-model="filterGenre" placeholder="选择流派" clearable style="width: 150px" @change="handleSearch">
-        <el-option
-          v-for="genre in genres"
-          :key="genre"
-          :label="genre"
-          :value="genre"
-        />
-      </el-select>
-      <el-button type="danger" :disabled="selectedIds.length === 0" @click="handleBatchDelete">
-        批量删除
-      </el-button>
-    </div>
-
-    <!-- 音乐列表 -->
-    <el-table
-      v-loading="loading"
-      :data="musicList"
-      style="width: 100%"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column type="selection" width="55" />
-      <el-table-column label="封面" width="80">
-        <template #default="{ row }">
-          <el-image
-            :src="row.coverImage || '/default-cover.png'"
-            :preview-src-list="[]"
-            fit="cover"
-            style="width: 60px; height: 60px; border-radius: 8px"
+    <div class="panel">
+      <!-- 搜索和筛选 -->
+      <div class="search-bar">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜索音乐、歌手、专辑..."
+          clearable
+          @clear="handleSearch"
+          @keyup.enter="handleSearch"
+          class="search-input"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+        <el-select v-model="filterGenre" placeholder="选择流派" clearable class="genre-select" @change="handleSearch">
+          <el-option
+            v-for="genre in genres"
+            :key="genre"
+            :label="genre"
+            :value="genre"
           />
-        </template>
-      </el-table-column>
-      <el-table-column prop="title" label="歌曲标题" min-width="150" />
-      <el-table-column prop="artist" label="歌手" width="120" />
-      <el-table-column prop="album" label="专辑" width="120" />
-      <el-table-column prop="genre" label="流派" width="100" />
-      <el-table-column prop="playCount" label="播放量" width="100">
-        <template #default="{ row }">
-          {{ row.playCount?.toLocaleString() || 0 }}
-        </template>
-      </el-table-column>
+        </el-select>
+        <el-button
+          v-if="isAdmin"
+          type="danger"
+          :disabled="selectedIds.length === 0"
+          @click="handleBatchDelete"
+        >
+          批量删除
+        </el-button>
+      </div>
 
-      <!-- 播放量 -->
-      <el-table-column label="操作" width="240" fixed="right">
-        <template #default="{ row }">
-          <el-button link type="primary" @click="handlePlay(row)">
-            {{ currentPlayingId === row.id ? '停止' : '播放' }}
-          </el-button>
-          <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-          <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+      <!-- 音乐列表 -->
+      <div class="table-wrapper">
+        <el-table
+          v-loading="loading"
+          :data="musicList"
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+          class="music-table"
+        >
+          <el-table-column v-if="isAdmin" type="selection" width="55" />
+          <el-table-column label="封面" width="80">
+            <template #default="{ row }">
+              <el-image
+                :src="row.coverImage || '/default-cover.png'"
+                :preview-src-list="[]"
+                fit="cover"
+                style="width: 60px; height: 60px; border-radius: 12px"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column prop="title" label="歌曲标题" min-width="160" />
+          <el-table-column prop="artist" label="歌手" width="140" />
+          <el-table-column prop="album" label="专辑" width="140" />
+          <el-table-column prop="genre" label="流派" width="120" />
+          <el-table-column prop="playCount" label="播放量" width="120">
+            <template #default="{ row }">
+              {{ row.playCount?.toLocaleString() || 0 }}
+            </template>
+          </el-table-column>
 
-    <!-- 分页 -->
-    <div class="pagination">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :total="total"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
-      />
+          <el-table-column :label="isAdmin ? '操作' : '播放'" :width="isAdmin ? 260 : 120" fixed="right">
+            <template #default="{ row }">
+              <el-button link type="primary" @click="handlePlay(row)">
+                {{ currentPlayingId === row.id ? '停止' : '播放' }}
+              </el-button>
+              <template v-if="isAdmin">
+                <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+                <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+              </template>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        />
+      </div>
     </div>
 
     <!-- 添加/编辑对话框 -->
@@ -163,9 +177,12 @@
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Search, Check } from '@element-plus/icons-vue'
 import { musicApi, uploadFile } from '@/api'
-import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, computed } from 'vue'
+import { getUser } from '@/utils/auth'
 
 const loading = ref(false)
+const currentUser = ref(getUser())
+const isAdmin = computed(() => currentUser.value?.role === 'admin')
 const musicList = ref([])
 const total = ref(0)
 const currentPage = ref(1)
@@ -257,6 +274,10 @@ const handleAdd = () => {
 
 // 编辑
 const handleEdit = (row) => {
+  if (!isAdmin.value) {
+    ElMessage.warning('无权限编辑音乐')
+    return
+  }
   dialogTitle.value = '编辑音乐'
   Object.assign(formData, { ...row })
   dialogVisible.value = true
@@ -264,6 +285,10 @@ const handleEdit = (row) => {
 
 // 删除
 const handleDelete = async (row) => {
+  if (!isAdmin.value) {
+    ElMessage.warning('无权限删除音乐')
+    return
+  }
   try {
     await ElMessageBox.confirm('确定要删除这首音乐吗？', '提示', {
       type: 'warning'
@@ -282,6 +307,10 @@ const handleDelete = async (row) => {
 
 // 批量删除
 const handleBatchDelete = async () => {
+  if (!isAdmin.value) {
+    ElMessage.warning('无权限批量删除')
+    return
+  }
   try {
     await ElMessageBox.confirm(`确定要删除选中的 ${selectedIds.value.length} 首音乐吗？`, '提示', {
       type: 'warning'
@@ -433,7 +462,10 @@ onMounted(() => {
 
 <style scoped>
 .music-page {
-  padding: 20px;
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, #0b1224 0%, #0f172a 40%, #111827 100%);
+  color: #e5e7eb;
 }
 
 .page-header {
@@ -444,17 +476,124 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffffff;
+  font-size: 26px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
 }
 
 .search-bar {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
+.search-input {
+  width: 320px;
+}
+
+.genre-select {
+  width: 160px;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 18px 18px 10px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.table-wrapper {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.file-info {
+  margin-top: 8px;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 表格整体 */
+:deep(.music-table) {
+  --el-table-bg-color: transparent;
+  --el-table-header-bg-color: rgba(17, 24, 39, 0.75);
+  --el-table-header-text-color: #cbd5e1;
+  --el-table-text-color: #e5e7eb;
+  --el-table-border-color: rgba(255, 255, 255, 0.08);
+  --el-table-row-hover-bg-color: rgba(30, 41, 59, 0.6);
+  background: transparent;
+}
+
+/* 表头 */
+:deep(.music-table thead .el-table__cell) {
+  font-weight: 700;
+  color: #cbd5e1;
+  background: rgba(17, 24, 39, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 行样式 */
+:deep(.music-table .el-table__row) {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:deep(.music-table .el-table__row:hover) {
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.7));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+}
+
+:deep(.music-table .el-table__cell) {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+:deep(.music-table .el-table__row:hover .el-table__cell) {
+  border-color: rgba(99, 102, 241, 0.28);
+}
+
+/* 选择列复选框颜色 */
+:deep(.el-checkbox__inner) {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+:deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: #6366f1;
+  border-color: #6366f1;
+}
+
+/* 操作按钮颜色 */
+:deep(.el-button--primary.is-link) {
+  color: #60a5fa;
+}
+
+:deep(.el-button--danger.is-link) {
+  color: #f87171;
+}
+
+/* 分页文本颜色 */
+:deep(.el-pagination) {
+  --el-text-color-regular: #cbd5e1;
+}
 .pagination {
   margin-top: 20px;
   display: flex;

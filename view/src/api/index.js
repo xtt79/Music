@@ -203,21 +203,31 @@ export const playlistApi = {
   // 添加音乐到歌单
   addMusic(playlistId, musicId) {
     return request({
-      url: `/api/playlist/${playlistId}/music/${musicId}`,
-      method: 'post'
+      url: '/api/playlist',
+      method: 'post',
+      params: {
+        action: 'addMusic',
+        playlistId,
+        musicId
+      }
     })
   },
   // 从歌单移除音乐
   removeMusic(playlistId, musicId) {
     return request({
-      url: `/api/playlist/${playlistId}/music/${musicId}`,
-      method: 'delete'
+      url: '/api/playlist',
+      method: 'delete',
+      params: {
+        action: 'removeMusic',
+        playlistId,
+        musicId
+      }
     })
   },
   // 获取歌单中的音乐列表
   getMusic(playlistId) {
     return request({
-      url: `/api/playlist/${playlistId}/music`,
+      url: `/api/playlist/music/${playlistId}`,
       method: 'get'
     })
   },

@@ -14,7 +14,7 @@
         text-color="#94a3b8"
         active-text-color="#6366f1"
       >
-        <el-menu-item index="/dashboard">
+        <el-menu-item v-if="isAdmin" index="/dashboard">
           <el-icon><Odometer /></el-icon>
           <template #title>仪表盘</template>
         </el-menu-item>
@@ -22,7 +22,7 @@
           <el-icon><Headset /></el-icon>
           <template #title>音乐管理</template>
         </el-menu-item>
-        <el-menu-item index="/user">
+        <el-menu-item v-if="isAdmin" index="/user">
           <el-icon><User /></el-icon>
           <template #title>用户管理</template>
         </el-menu-item>
@@ -30,7 +30,7 @@
           <el-icon><List /></el-icon>
           <template #title>歌单管理</template>
         </el-menu-item>
-        <el-menu-item index="/log">
+        <el-menu-item v-if="isAdmin" index="/log">
           <el-icon><Document /></el-icon>
           <template #title>操作日志</template>
         </el-menu-item>
@@ -67,6 +67,7 @@
       <el-main class="main-content">
         <router-view />
       </el-main>
+
     </el-container>
   </el-container>
 </template>
@@ -81,12 +82,31 @@ import { logout } from '@/api'
 const route = useRoute()
 const router = useRouter()
 
+const defaultAvatar =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <defs>
+    <linearGradient id="g" x1="32" y1="24" x2="128" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+  </defs>
+  <circle cx="80" cy="80" r="78" fill="#0B1220"/>
+  <circle cx="80" cy="80" r="70" fill="url(#g)"/>
+  <path d="M94 44v52c0 8.6-7 15.6-15.6 15.6S62.8 104.6 62.8 96c0-8.7 7-15.7 15.6-15.7 3.4 0 6.6 1.1 9.2 2.9V44H94Z" fill="#E5E7EB"/>
+  <circle cx="78.4" cy="99.5" r="7.5" fill="#E5E7EB"/>
+  <circle cx="108" cy="56" r="5.5" fill="#E5E7EB"/>
+</svg>
+`)
+
 const isCollapse = ref(false)
 const user = ref(null)
+const isAdmin = computed(() => user.value?.role === 'admin')
 
 const activeMenu = computed(() => route.path)
 const username = computed(() => user.value?.username || '管理员')
-const userAvatar = computed(() => user.value?.avatar || '')
+const userAvatar = computed(() => user.value?.avatar || defaultAvatar)
 
 // 切换侧边栏折叠
 const toggleCollapse = () => {
