@@ -76,6 +76,16 @@ service.interceptors.response.use(
         // ========== 其他请求的业务错误处理 ==========
         if (res.code !== 200) {
             console.log('❌ 业务错误:', res.code, res.message)
+            const url = response.config.url || ''
+
+            // 登录接口的错误单独处理，不做全局登出跳转
+            if (url.includes('/login')) {
+                const msg =
+                    res.message ||
+                    (res.code === 401 ? '账号存在风险，已禁用！' : '登录失败')
+                ElMessage.error(msg)
+                return res
+            }
 
             // 401未授权，清除用户信息并跳转到登录页
             if (res.code === 401) {

@@ -1,10 +1,18 @@
 <template>
   <div class="login-container">
+    <!-- 背景跳动音符 -->
+    <div class="floating-notes">
+      <span class="note note-1">♪</span>
+      <span class="note note-2">♫</span>
+      <span class="note note-3">♬</span>
+      <span class="note note-4">♩</span>
+    </div>
+
     <div class="login-box">
       <div class="logo-section">
         <el-icon class="logo-icon"><Headset /></el-icon>
-        <h1 class="title gradient-text">音乐后台管理系统</h1>
-        <p class="subtitle">Music Management Platform</p>
+        <h1 class="title gradient-text">YOLOMusic后台管理系统</h1>
+        <p class="subtitle">You Only Live Once</p>
       </div>
 
       <el-form
@@ -36,9 +44,9 @@
           />
         </el-form-item>
 
-        <el-form-item>
+        <!-- <el-form-item>
           <el-checkbox v-model="loginForm.remember">记住密码</el-checkbox>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item>
           <el-button
@@ -53,10 +61,6 @@
         </el-form-item>
       </el-form>
 
-      <div class="demo-info">
-        <p class="demo-text">演示账号：</p>
-        <p class="demo-account">管理员：admin / admin123</p>
-      </div>
     </div>
   </div>
 </template>
@@ -120,7 +124,10 @@ const handleLogin = async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15), transparent 30%),
+              radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.18), transparent 32%),
+              radial-gradient(circle at 50% 80%, rgba(124, 58, 237, 0.16), transparent 30%),
+              linear-gradient(135deg, #0b1022 0%, #0f172a 50%, #111827 100%);
   position: relative;
   overflow: hidden;
 }
@@ -148,11 +155,11 @@ const handleLogin = async () => {
 .login-box {
   width: 420px;
   padding: 40px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255,255,255,0.02);
   position: relative;
   z-index: 1;
 }
@@ -166,6 +173,7 @@ const handleLogin = async () => {
   font-size: 64px;
   color: #6366f1;
   margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
 }
 
 .title {
@@ -189,10 +197,35 @@ const handleLogin = async () => {
   border: none;
   font-size: 16px;
   font-weight: 500;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35);
 }
 
 .login-button:hover {
   background: linear-gradient(135deg, #5856eb 0%, #7c3aed 100%);
+}
+
+.floating-notes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.note {
+  position: absolute;
+  color: rgba(255,255,255,0.15);
+  font-size: 48px;
+  animation: float 4s ease-in-out infinite;
+}
+
+.note-1 { top: 18%; left: 18%; color: rgba(99,102,241,0.22); animation-delay: 0s; }
+.note-2 { top: 35%; right: 16%; color: rgba(14,165,233,0.22); animation-delay: 0.8s; }
+.note-3 { bottom: 28%; left: 20%; color: rgba(124,58,237,0.22); animation-delay: 1.2s; }
+.note-4 { bottom: 18%; right: 18%; color: rgba(236,72,153,0.22); animation-delay: 0.4s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
 }
 
 .demo-info {

@@ -1,5 +1,13 @@
 <template>
   <div class="dashboard">
+    <!-- 背景特效层：柔和渐变+音符，不遮挡内容 -->
+    <div class="bg-effects" aria-hidden="true">
+      <div class="note note-1">♪</div>
+      <div class="note note-2">♫</div>
+      <div class="note note-3">♪</div>
+      <div class="note note-4">♫</div>
+    </div>
+
     <h2 class="page-title">仪表盘</h2>
 
     <!-- 统计卡片 -->
@@ -21,8 +29,8 @@
     <el-row :gutter="20" class="charts-row">
       <el-col :xs="24" :md="12">
         <div class="chart-card">
-          <h3 class="chart-title">用户增长趋势</h3>
-          <div ref="userGrowthChartRef" class="chart-container"></div>
+          <h3 class="chart-title">热门音乐排行（播放量 TOP10）</h3>
+          <div ref="topChartRef" class="chart-container"></div>
         </div>
       </el-col>
       <el-col :xs="24" :md="12">
@@ -39,7 +47,7 @@
 import { ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
 import { User, Headset, List, VideoPlay } from '@element-plus/icons-vue'
-import { dashboardApi } from '@/api'
+import { dashboardApi, musicApi } from '@/api'
 
 const stats = ref([
   {
@@ -72,7 +80,7 @@ const stats = ref([
   }
 ])
 
-const userGrowthChartRef = ref(null)
+const topChartRef = ref(null)
 const genreChartRef = ref(null)
 
 // 加载统计数据
@@ -90,50 +98,66 @@ const loadStatistics = async () => {
   }
 }
 
-// 初始化用户增长趋势图
-const initUserGrowthChart = async () => {
-  if (!userGrowthChartRef.value) return
+// 初始化热门音乐排行（播放量 TOP10）
+const initTopChart = async () => {
+  if (!topChartRef.value) return
 
-  const chart = echarts.init(userGrowthChartRef.value)
+  const chart = echarts.init(topChartRef.value)
 
   try {
-    const res = await dashboardApi.getUserGrowthTrend()
-    const data = res.code === 200 ? res.data : []
+    const res = await musicApi.list({ page: 1, pageSize: 100 })
+    const list = res.code === 200 ? res.data.list || [] : []
+    const top10 = [...list]
+      .sort((a, b) => (b.playCount || 0) - (a.playCount || 0))
+      .slice(0, 10)
+
+    const names = top10.map(item => item.title || '-').reverse()
+    const counts = top10.map(item => item.playCount || 0).reverse()
 
     const option = {
-      tooltip: { trigger: 'axis' },
+      tooltip: {
+        trigger: 'axis',
+        formatter: params => {
+          const p = params[0]
+          return `${p.name}<br/>播放量：${p.value?.toLocaleString?.() || p.value}`
+        }
+      },
+      grid: { left: 80, right: 20, top: 20, bottom: 20 },
       xAxis: {
-        type: 'category',
-        data: data.map(item => item.date),
+        type: 'value',
         axisLine: { lineStyle: { color: '#64748b' } },
-        axisLabel: { color: '#94a3b8' }
+        axisLabel: { color: '#94a3b8' },
+        splitLine: { lineStyle: { color: '#1f2937' } }
       },
       yAxis: {
-        type: 'value',
+        type: 'category',
+        data: names,
         axisLine: { lineStyle: { color: '#64748b' } },
         axisLabel: { color: '#94a3b8' }
       },
       series: [{
-        data: data.map(item => item.count),
-        type: 'line',
-        smooth: true,
-        lineStyle: { color: '#6366f1' },
-        areaStyle: {
-          color: {
-            type: 'linear',
-            x: 0, y: 0, x2: 0, y2: 1,
-            colorStops: [
-              { offset: 0, color: 'rgba(99, 102, 241, 0.3)' },
-              { offset: 1, color: 'rgba(99, 102, 241, 0.1)' }
-            ]
-          }
+        type: 'bar',
+        data: counts,
+        barWidth: 14,
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+            { offset: 0, color: '#4f46e5' },
+            { offset: 1, color: '#06b6d4' }
+          ]),
+          borderRadius: [6, 6, 6, 6]
+        },
+        label: {
+          show: true,
+          position: 'right',
+          color: '#cbd5e1',
+          formatter: ({ value }) => (value || 0).toLocaleString()
         }
       }]
     }
 
     chart.setOption(option)
   } catch (error) {
-    console.error('加载用户增长趋势失败:', error)
+    console.error('加载热门排行失败:', error)
   }
 }
 
@@ -182,8 +206,8 @@ onMounted(() => {
 
 // 添加窗口大小变化时的图表重绘
 const handleResize = () => {
-  if (userGrowthChartRef.value) {
-    const chart1 = echarts.getInstanceByDom(userGrowthChartRef.value)
+  if (topChartRef.value) {
+    const chart1 = echarts.getInstanceByDom(topChartRef.value)
     chart1 && chart1.resize()
   }
   if (genreChartRef.value) {
@@ -195,7 +219,7 @@ const handleResize = () => {
 onMounted(() => {
   loadStatistics()
   setTimeout(() => {
-    initUserGrowthChart()
+    initTopChart()
     initGenreChart()
   }, 100)
 
@@ -206,6 +230,42 @@ onMounted(() => {
 <style scoped>
 .dashboard {
   padding: 20px;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.10), transparent 38%),
+    radial-gradient(circle at 78% 18%, rgba(56, 189, 248, 0.12), transparent 36%),
+    radial-gradient(circle at 26% 72%, rgba(14, 165, 233, 0.10), transparent 34%),
+    linear-gradient(135deg, #0a1020 0%, #0d1528 42%, #0f1c2f 100%);
+  color: #e5e7eb;
+}
+
+.bg-effects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.note {
+  position: absolute;
+  font-size: 46px;
+  color: rgba(255, 255, 255, 0.12);
+  animation: float-dash 12s linear infinite;
+  filter: blur(0.3px);
+}
+
+.note-1 { top: 70%; left: 16%; animation-duration: 12s; animation-delay: 0s; color: rgba(59, 130, 246, 0.18); }
+.note-2 { top: 18%; left: 82%; animation-duration: 14s; animation-delay: 1.2s; color: rgba(45, 212, 191, 0.18); }
+.note-3 { top: 32%; left: 46%; animation-duration: 11s; animation-delay: 0.7s; color: rgba(129, 140, 248, 0.20); }
+.note-4 { top: 8%; left: 24%; animation-duration: 16s; animation-delay: 2s; color: rgba(56, 189, 248, 0.22); font-size: 40px; }
+
+@keyframes float-dash {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
+  40% { opacity: 0.95; }
+  60% { transform: translateY(-16px) translateX(5px) scale(1.05); opacity: 0.85; }
+  100% { transform: translateY(-36px) translateX(-4px) scale(1.08); opacity: 0; }
 }
 
 .page-title {
@@ -213,10 +273,14 @@ onMounted(() => {
   font-weight: bold;
   margin-bottom: 24px;
   color: #ffffff;
+  position: relative;
+  z-index: 1;
 }
 
 .stats-row {
   margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-card {
@@ -230,6 +294,8 @@ onMounted(() => {
   gap: 16px;
   transition: transform 0.3s;
   min-height: 100px;
+  position: relative;
+  z-index: 1;
 }
 
 .stat-card:hover {
@@ -270,6 +336,8 @@ onMounted(() => {
 
 .charts-row {
   margin-top: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .chart-card {
@@ -280,6 +348,8 @@ onMounted(() => {
   padding: 20px;
   height: 400px;
   transition: transform 0.3s;
+  position: relative;
+  z-index: 1;
 }
 
 .chart-card:hover {

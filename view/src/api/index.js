@@ -150,10 +150,20 @@ export const userApi = {
   },
   // 创建用户
   create(data) {
+    // 后端使用 request.getParameter 读取，采用表单格式
+    const params = new URLSearchParams()
+    Object.keys(data || {}).forEach(key => {
+      if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+        params.append(key, data[key])
+      }
+    })
     return request({
       url: '/api/user',
       method: 'post',
-      data
+      data: params,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      }
     })
   }
 }

@@ -1,5 +1,13 @@
 <template>
   <div class="playlist-page">
+    <!-- 背景特效层：渐变+音符，不遮挡内容 -->
+    <div class="bg-effects" aria-hidden="true">
+      <div class="note note-1">♪</div>
+      <div class="note note-2">♫</div>
+      <div class="note note-3">♪</div>
+      <div class="note note-4">♫</div>
+    </div>
+
     <div class="page-header">
       <h2 class="page-title">歌单管理</h2>
       <el-button type="primary" @click="handleAdd">创建歌单</el-button>
@@ -15,35 +23,37 @@
       />
     </div>
 
-    <el-table v-loading="loading" :data="playlistList" class="music-table">
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column label="封面" width="100">
-        <template #default="{ row }">
-          <el-image
-            :src="row.coverImage || '/default-cover.png'"
-            fit="cover"
-            style="width: 60px; height: 60px; border-radius: 8px"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column prop="name" label="歌单名称" min-width="150" />
-      <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
-      <el-table-column prop="musicCount" label="歌曲数" width="100" />
-      <el-table-column prop="creatorName" label="创建者" width="120" />
-      <el-table-column prop="createdAt" label="创建时间" width="160" />
-      <el-table-column label="操作" width="220">
-        <template #default="{ row }">
-          <template v-if="isAdmin || row.creatorId === currentUser?.id">
-            <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button link type="primary" @click="handleManageMusic(row)">管理音乐</el-button>
-            <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+    <div class="table-wrapper">
+      <el-table v-loading="loading" :data="playlistList" class="music-table">
+        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column label="封面" width="100">
+          <template #default="{ row }">
+            <el-image
+              :src="row.coverImage || '/default-cover.png'"
+              fit="cover"
+              style="width: 60px; height: 60px; border-radius: 8px"
+            />
           </template>
-          <template v-else>
-            <el-button link type="primary" @click="handleManageMusic(row)">查看</el-button>
+        </el-table-column>
+        <el-table-column prop="name" label="歌单名称" min-width="150" />
+        <el-table-column prop="description" label="描述" min-width="200" show-overflow-tooltip />
+        <el-table-column prop="musicCount" label="歌曲数" width="100" />
+        <el-table-column prop="creatorName" label="创建者" width="120" />
+        <el-table-column prop="createdAt" label="创建时间" width="160" />
+        <el-table-column label="操作" width="220">
+          <template #default="{ row }">
+            <template v-if="isAdmin || row.creatorId === currentUser?.id">
+              <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+              <el-button link type="primary" @click="handleManageMusic(row)">管理音乐</el-button>
+              <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
+            </template>
+            <template v-else>
+              <el-button link type="primary" @click="handleManageMusic(row)">查看</el-button>
+            </template>
           </template>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+      </el-table>
+    </div>
 
     <div class="pagination">
       <el-pagination
@@ -501,6 +511,41 @@ const handleEditMusic = (row) => {
 <style scoped>
 .playlist-page {
   padding: 20px;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(99, 102, 241, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.12), transparent 36%),
+    radial-gradient(circle at 28% 78%, rgba(236, 72, 153, 0.10), transparent 34%),
+    linear-gradient(135deg, #0a1222 0%, #0d182c 42%, #101f35 100%);
+}
+
+.bg-effects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.note {
+  position: absolute;
+  font-size: 46px;
+  color: rgba(255, 255, 255, 0.12);
+  animation: float-playlist 12s linear infinite;
+  filter: blur(0.3px);
+}
+
+.note-1 { top: 70%; left: 16%; animation-duration: 12s; animation-delay: 0s; color: rgba(99, 102, 241, 0.18); }
+.note-2 { top: 18%; left: 82%; animation-duration: 14s; animation-delay: 1s; color: rgba(56, 189, 248, 0.20); }
+.note-3 { top: 34%; left: 46%; animation-duration: 11s; animation-delay: 0.6s; color: rgba(236, 72, 153, 0.18); }
+.note-4 { top: 10%; left: 26%; animation-duration: 15s; animation-delay: 1.8s; color: rgba(79, 70, 229, 0.22); font-size: 42px; }
+
+@keyframes float-playlist {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.7; }
+  40% { opacity: 0.95; }
+  60% { transform: translateY(-16px) translateX(5px) scale(1.05); opacity: 0.85; }
+  100% { transform: translateY(-36px) translateX(-4px) scale(1.08); opacity: 0; }
 }
 
 .page-header {
@@ -508,6 +553,8 @@ const handleEditMusic = (row) => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .page-title {
@@ -518,12 +565,62 @@ const handleEditMusic = (row) => {
 
 .search-bar {
   margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-wrapper {
+  margin-top: 4px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 1;
 }
 
 .pagination {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+  position: relative;
+  z-index: 1;
+}
+
+/* 表格样式（透明背景以露出渐变，圆角由外层包裹） */
+:deep(.music-table) {
+  --el-table-bg-color: transparent;
+  --el-table-header-bg-color: rgba(17, 24, 39, 0.78);
+  --el-table-header-text-color: #cbd5e1;
+  --el-table-text-color: #e5e7eb;
+  --el-table-border-color: rgba(255, 255, 255, 0.08);
+  --el-table-row-hover-bg-color: rgba(30, 41, 59, 0.55);
+  background: transparent;
+}
+
+:deep(.music-table thead .el-table__cell) {
+  font-weight: 700;
+  color: #cbd5e1;
+  background: rgba(17, 24, 39, 0.78);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+:deep(.music-table .el-table__row) {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+:deep(.music-table .el-table__row:hover) {
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.7), rgba(51, 65, 85, 0.7));
+}
+
+:deep(.music-table .el-table__cell) {
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 /* 深色弹窗样式，让管理歌单弹窗与页面保持一致 */
@@ -638,8 +735,6 @@ const handleEditMusic = (row) => {
   --el-table-tr-bg-color: #0b1220;
   --el-table-row-hover-bg-color: rgba(59, 130, 246, 0.08);
   color: #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
 }
 
 .playlist-manage-dialog :deep(.el-table thead th) {
@@ -657,6 +752,33 @@ const handleEditMusic = (row) => {
 
 .playlist-manage-dialog :deep(.el-tag) {
   border-color: transparent;
+}
+
+/* 用深度选择器（::v-deep）穿透：用于修改element-plus的样式 */
+::v-deep .el-select__wrapper {
+  background-color: rgb(40, 46, 62); 
+}
+
+::v-deep .pagination .el-pager li {
+  /* 替换成你想要的背景色，比如深蓝色 */
+  background: #2d3748 !important; /* 若默认样式权重极高，可加!important强制覆盖 */
+  /* 可选：同时修改文字颜色（避免和背景冲突） */
+  color: #ffffff;
+}
+
+/* 统一修改分页的“上一页/下一页”按钮背景（包含.btn-prev和.btn-next） */
+::v-deep .pagination .el-pagination .btn-prev,
+::v-deep .pagination .el-pagination .btn-next {
+  /* 替换成你想要的背景色（比如和之前分页按钮一致的深色） */
+  background: #2d3748 !important; 
+  color: #ffffff; /* 文字颜色（避免和背景冲突） */
+}
+
+/* 可选：鼠标 hover 时的样式 */
+::v-deep .pagination .el-pagination .btn-prev:hover,
+::v-deep .pagination .el-pagination .btn-next:hover,
+::v-deep .pagination .el-pager li:hover{
+  background: #4b50eb !important; /* hover时的背景色 */
 }
 </style>
 

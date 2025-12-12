@@ -1,6 +1,14 @@
 <template>
   <div class="music-page">
-<div class="page-header">
+    <!-- 背景特效层：渐变+跳动音符，不遮挡内容 -->
+    <div class="bg-effects" aria-hidden="true">
+      <div class="note note-1">♪</div>
+      <div class="note note-2">♫</div>
+      <div class="note note-3">♪</div>
+      <div class="note note-4">♫</div>
+    </div>
+
+    <div class="page-header">
       <div>
         <div class="page-subtitle">音乐后台 · 列表</div>
         <h2 class="page-title">音乐管理</h2>
@@ -464,8 +472,40 @@ onMounted(() => {
 .music-page {
   min-height: 100vh;
   padding: 24px;
-  background: linear-gradient(135deg, #0b1224 0%, #0f172a 40%, #111827 100%);
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.12), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(45, 212, 191, 0.12), transparent 35%),
+    radial-gradient(circle at 40% 80%, rgba(236, 72, 153, 0.12), transparent 35%),
+    linear-gradient(135deg, #0b1224 0%, #0f172a 40%, #111827 100%);
   color: #e5e7eb;
+}
+
+.bg-effects {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.note {
+  position: absolute;
+  font-size: 48px;
+  color: rgba(255, 255, 255, 0.14);
+  animation: float 10s linear infinite;
+  filter: blur(0.2px);
+}
+
+.note-1 { top: 72%; left: 12%; animation-duration: 12s; animation-delay: 0s; }
+.note-2 { top: 20%; left: 78%; animation-duration: 14s; animation-delay: 1.5s; color: rgba(99, 102, 241, 0.22); }
+.note-3 { top: 35%; left: 48%; animation-duration: 11s; animation-delay: 0.8s; color: rgba(45, 212, 191, 0.18); }
+.note-4 { top: 10%; left: 22%; animation-duration: 15s; animation-delay: 2.2s; color: rgba(236, 72, 153, 0.2); font-size: 42px; }
+
+@keyframes float {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.75; }
+  40% { opacity: 0.95; }
+  60% { transform: translateY(-18px) translateX(6px) scale(1.05); opacity: 0.85; }
+  100% { transform: translateY(-40px) translateX(-6px) scale(1.08); opacity: 0; }
 }
 
 .page-header {
@@ -473,6 +513,8 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .page-title {
@@ -510,6 +552,8 @@ onMounted(() => {
   padding: 18px 18px 10px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(12px);
+  position: relative;
+  z-index: 1;
 }
 
 .table-wrapper {
@@ -522,6 +566,8 @@ onMounted(() => {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  position: relative;
+  z-index: 1;
 }
 
 .file-info {
@@ -606,6 +652,33 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* 用深度选择器（::v-deep）穿透：用于修改element-plus的样式 */
+::v-deep .el-select__wrapper {
+  background-color: rgb(40, 46, 62); 
+}
+
+::v-deep .pagination .el-pager li {
+  /* 替换成你想要的背景色，比如深蓝色 */
+  background: #2d3748 !important; /* 若默认样式权重极高，可加!important强制覆盖 */
+  /* 可选：同时修改文字颜色（避免和背景冲突） */
+  color: #ffffff;
+}
+
+/* 统一修改分页的“上一页/下一页”按钮背景（包含.btn-prev和.btn-next） */
+::v-deep .pagination .el-pagination .btn-prev,
+::v-deep .pagination .el-pagination .btn-next {
+  /* 替换成你想要的背景色（比如和之前分页按钮一致的深色） */
+  background: #2d3748 !important; 
+  color: #ffffff; /* 文字颜色（避免和背景冲突） */
+}
+
+/* 可选：鼠标 hover 时的样式 */
+::v-deep .pagination .el-pagination .btn-prev:hover,
+::v-deep .pagination .el-pagination .btn-next:hover,
+::v-deep .pagination .el-pager li:hover{
+  background: #4b50eb !important; /* hover时的背景色 */
 }
 </style>
 
